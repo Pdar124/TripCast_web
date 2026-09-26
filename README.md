@@ -7,6 +7,10 @@ TripCast의 관광지·관광코스 날씨 및 관광기후지수 웹 서비스 
 - 프론트엔드: [TripCast-web](https://github.com/Pdar124/TripCast-web)
 - 백엔드: [TripCast-was](https://github.com/Pdar124/TripCast-was)
 
+## 문서
+
+- 페이지별 기능 명세서(3D 히어로 섹션 상세 포함): [docs/frontend-spec.md](docs/frontend-spec.md)
+
 ## 시작하기
 
 ### 요구 환경
