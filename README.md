@@ -7,22 +7,26 @@ TripCast의 관광지·관광코스 날씨 및 관광기후지수 웹 서비스 
 - 프론트엔드: [TripCast-web](https://github.com/Pdar124/TripCast-web)
 - 백엔드: [TripCast-was](https://github.com/Pdar124/TripCast-was)
 
+개발환경 구성 이유, 검증 방법, 의존성 도입 시점은 [개발환경 가이드](docs/development-environment.md)에 정리했습니다.
+
 ## 시작하기
 
 ### 요구 환경
 
-- Node.js 20.19 이상
+- Node.js 24.18 이상, 24.x 범위 (`engines: ^24.18.0`, `.nvmrc` 기준 버전: 24.18.0)
 - npm 10 이상
 
 ### 설치 및 실행
 
 ```bash
-npm install
+npm ci
 cp .env.example .env
 npm run dev
 ```
 
 Windows PowerShell에서는 `cp .env.example .env` 대신 `Copy-Item .env.example .env`을 사용할 수 있습니다.
+
+`npm ci`는 잠금 파일 기준으로 의존성을 설치하고 `prepare` 단계에서 Husky를 설정합니다. `git config --get core.hooksPath`의 결과가 `.husky/_`인지 확인합니다. 설정이 빠졌다면 `npm run prepare`를 실행한 뒤 다시 확인합니다.
 
 ### 환경 변수
 
@@ -45,9 +49,13 @@ Windows PowerShell에서는 `cp .env.example .env` 대신 `Copy-Item .env.exampl
 | `npm run test:e2e`     | Playwright E2E 테스트 실행                         |
 | `npm run generate:api` | 로컬 백엔드 OpenAPI 명세로 `src/types/api.ts` 생성 |
 
-Playwright를 처음 실행하기 전에는 `npx playwright install chromium`으로 테스트 브라우저를 설치합니다.
+Playwright 설정과 홈 스모크 테스트는 준비되어 있습니다. 이번 환경 정리에는 테스트 브라우저 설치와 실제 E2E 실행을 포함하지 않았습니다. 처음 실행할 때는 `npx playwright install chromium`으로 브라우저를 설치한 뒤 `npm run test:e2e`를 실행합니다.
+
+`npm run generate:api`는 로컬 백엔드가 실행 중일 때 사용합니다. 현재 `src/types/api.ts`는 빈 placeholder이며, 실제 API 타입 생성은 아직 완료하지 않았습니다.
 
 ## 1. 기술 스택
+
+아래 표는 최종 목표 스택입니다. 현재 Phase 0에서는 실행·검증 기반과 공통 UI를 구성했으며, Recharts, date-fns, Zustand, React Hook Form, Zod 및 `@hookform/resolvers`는 실제 기능 개발 시점에 설치합니다. 카카오맵 연동도 후속 Phase에서 진행합니다.
 
 | 영역            | 선택 기술                             | 선택 이유                                             |
 | --------------- | ------------------------------------- | ----------------------------------------------------- |
@@ -69,6 +77,8 @@ Playwright를 처음 실행하기 전에는 `npx playwright install chromium`으
 
 ## 2. 사이트맵
 
+목표 화면 목록입니다. 현재 구현된 화면은 기본 홈과 404 페이지입니다.
+
 | 경로               | 화면                                            |
 | ------------------ | ----------------------------------------------- |
 | `/`                | 홈 — 서비스 소개 및 오늘의 추천 코스 하이라이트 |
@@ -82,6 +92,8 @@ Playwright를 처음 실행하기 전에는 `npx playwright install chromium`으
 
 ## 3. 기능 명세
 
+아래 기능은 Phase 1 이후 구현할 명세이며, 현재 동작을 의미하지 않습니다. 상태 관리 열의 배열은 각 기능에 사용할 Query key를 나타냅니다.
+
 | 화면            | API                                           | 상태 관리                              | 핵심 기능                                                                  |
 | --------------- | --------------------------------------------- | -------------------------------------- | -------------------------------------------------------------------------- |
 | 관광지 검색     | `GET /api/tour-spots`                         | `useQuery(['spots', keyword, page])`   | 이름 검색, 리스트·지도 토글, 페이지네이션                                  |
@@ -94,9 +106,11 @@ Playwright를 처음 실행하기 전에는 `npx playwright install chromium`으
 
 ## 4. 폴더 구조
 
+`app/features/shared` 구조를 유지하며 아래 기능 폴더는 필요한 시점에 추가합니다.
+
 ```text
 src/
-├── app/               # 라우터, Provider(QueryClient, Zustand)
+├── app/               # 라우터, 공통 Provider(QueryClient 등)
 ├── features/
 │   ├── spots/
 │   ├── courses/
@@ -124,8 +138,8 @@ src/
 ## 구현 원칙
 
 - TanStack Query는 API에서 가져오는 서버 상태만 관리합니다.
-- Zustand는 인증 토큰과 화면 토글 등 클라이언트 상태만 관리합니다.
-- Axios interceptor가 JWT를 자동 첨부하고, 401 응답 시 인증 상태를 초기화합니다.
+- Zustand는 인증 등 공유 클라이언트 상태가 실제로 필요할 때 도입합니다. 화면 내부 상태는 우선 React의 로컬 상태로 관리합니다.
+- 관리자 인증 구현 시 Axios interceptor로 JWT를 자동 첨부하고, 401 응답 시 인증 상태를 초기화합니다.
 - API 타입은 백엔드의 `/v3/api-docs`를 기준으로 생성합니다.
 - 각 Phase가 끝날 때 관련 유닛·컴포넌트 테스트를 추가하고, 핵심 사용자 흐름은 Playwright E2E 테스트로 검증합니다.
 
