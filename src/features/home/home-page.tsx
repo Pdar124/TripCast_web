@@ -1,4 +1,5 @@
 import { CloudSun, MapPinned } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import { Button } from '@/shared/components/ui/button';
 
@@ -21,9 +22,11 @@ export function HomePage() {
           </p>
         </div>
 
-        <Button size="lg">
-          <MapPinned className="h-5 w-5" aria-hidden="true" />
-          여행지 둘러보기
+        <Button asChild size="lg">
+          <Link to="/spots">
+            <MapPinned className="h-5 w-5" aria-hidden="true" />
+            여행지 둘러보기
+          </Link>
         </Button>
       </section>
     </main>
