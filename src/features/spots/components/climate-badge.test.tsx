@@ -1,0 +1,20 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+
+import { ClimateBadge } from '@/features/spots/components/climate-badge';
+
+describe('ClimateBadge', () => {
+  it('관광기후지수가 없으면 중립 상태를 표시한다', () => {
+    render(<ClimateBadge climateIndex={null} />);
+
+    expect(screen.getByText('지수 없음')).toBeInTheDocument();
+  });
+
+  it('알 수 없는 grade는 안전한 fallback으로 표시한다', () => {
+    render(<ClimateBadge climateIndex={{ grade: 'NEW_GRADE', score: 77 }} />);
+
+    expect(screen.getByText('77점')).toBeInTheDocument();
+    expect(screen.getByText('정보 없음')).toBeInTheDocument();
+    expect(screen.queryByText('NEW_GRADE')).not.toBeInTheDocument();
+  });
+});
