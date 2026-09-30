@@ -59,6 +59,27 @@ git config --get core.hooksPath
 
 현재 pre-commit은 전체 lint → typecheck → 단위 테스트를 실행합니다. 현 규모에서는 충분한 구성이므로 유지하고, 커밋 시간이 실제로 길어질 때 실행 범위를 조정합니다. 포맷 검사는 별도 명령으로 수행하며 훅에는 추가하지 않습니다.
 
+## CI
+
+GitHub Actions의 `.github/workflows/ci.yml`은 다음 상황에 실행됩니다.
+
+- `main` 대상 Pull Request 생성·업데이트
+- `main` 브랜치 push
+- Actions 화면에서 수동 실행
+
+CI는 `.nvmrc`의 Node.js 버전과 `package-lock.json`을 기준으로 의존성을 설치한 뒤 다음 순서로 검증합니다.
+
+```bash
+npm ci
+npm run format:check
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
+
+같은 브랜치에 새 커밋이 push되면 이전 실행을 취소하고 최신 커밋만 검증합니다. 배포 workflow는 CI와 분리하며, CI가 안정화된 이후 Docker/GHCR 및 EC2 배포 단계로 추가합니다.
+
 ## E2E와 API 타입의 현재 범위
 
 Playwright는 Chromium 한 종류와 홈 화면 스모크 테스트를 준비한 상태입니다. 이번 환경 정리에는 브라우저 설치와 실제 E2E 실행을 포함하지 않았습니다. 테스트 브라우저가 없으면 먼저 설치합니다.
