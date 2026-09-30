@@ -29,11 +29,14 @@ Actions와 EC2의 GHCR 인증에는 해당 실행에서만 유효한 `GITHUB_TOK
 
 저장소의 `Settings > Secrets and variables > Actions > Variables`에 등록하는 다음 repository Variables는 선택 사항입니다.
 
-| Variable                 | 설명                                  | 기본값 |
-| ------------------------ | ------------------------------------- | ------ |
-| `VITE_API_BASE_URL`      | 브라우저에서 사용할 API base URL      | `/`    |
-| `VITE_KAKAO_MAP_APP_KEY` | 카카오맵 JavaScript 앱 키             | 빈 값  |
-| `TRIPCAST_WEB_PORT`      | EC2에서 프론트 컨테이너를 공개할 포트 | `80`   |
+| Variable                 | 설명                                  | 기본값  |
+| ------------------------ | ------------------------------------- | ------- |
+| `DEPLOY_ENABLED`         | EC2 자동 배포 활성화 여부             | `false` |
+| `VITE_API_BASE_URL`      | 브라우저에서 사용할 API base URL      | `/`     |
+| `VITE_KAKAO_MAP_APP_KEY` | 카카오맵 JavaScript 앱 키             | 빈 값   |
+| `TRIPCAST_WEB_PORT`      | EC2에서 프론트 컨테이너를 공개할 포트 | `80`    |
+
+EC2와 Secrets 준비를 마친 뒤에만 `DEPLOY_ENABLED`를 `true`로 설정합니다. 기본 상태에서도 CI 성공 후 GHCR 이미지 발행은 수행하지만 EC2 배포는 건너뜁니다.
 
 카카오맵 JavaScript 앱 키는 브라우저 번들에 포함되는 공개 식별자이므로 Secret이 아니라 Variable로 관리하고, 카카오 개발자 콘솔에서 허용 도메인을 제한합니다.
 
@@ -49,6 +52,6 @@ Actions와 EC2의 GHCR 인증에는 해당 실행에서만 유효한 `GITHUB_TOK
 
 ## 수동 배포
 
-GitHub의 `Actions > Deploy > Run workflow`에서 수동 배포할 수 있습니다. 수동 실행도 선택한 커밋의 이미지를 새로 발행한 뒤 같은 절차로 EC2에 배포합니다.
+GitHub의 `Actions > Deploy > Run workflow`에서 수동 배포할 수 있습니다. `DEPLOY_ENABLED`가 `true`인 경우 수동 실행도 선택한 커밋의 이미지를 새로 발행한 뒤 같은 절차로 EC2에 배포합니다.
 
 현재 Nginx 컨테이너는 HTTP를 제공합니다. 실제 도메인의 HTTPS는 ALB, CloudFront 또는 EC2 앞단의 TLS reverse proxy에서 종료하는 구성을 권장합니다.

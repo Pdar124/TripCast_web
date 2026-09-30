@@ -114,6 +114,7 @@ jobs:
   deploy:
     name: Deploy to EC2
     needs: publish
+    if: vars.DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: production
