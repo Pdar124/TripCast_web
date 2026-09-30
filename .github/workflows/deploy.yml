@@ -1,0 +1,174 @@
+name: Deploy
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('deploy-validation-{0}', github.event.pull_request.number) || 'production-deploy' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: pdar124/tripcast-web
+  DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  validate-image:
+    name: Validate Docker image
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL || '/' }}
+            VITE_KAKAO_MAP_APP_KEY=${{ vars.VITE_KAKAO_MAP_APP_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  publish:
+    name: Build and publish image
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.reference }}
+
+    steps:
+      - name: Check out deployment commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: metadata
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=sha-${{ env.DEPLOY_SHA }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL || '/' }}
+            VITE_KAKAO_MAP_APP_KEY=${{ vars.VITE_KAKAO_MAP_APP_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Select immutable image
+        id: image
+        run: echo "reference=${REGISTRY}/${IMAGE_NAME}:sha-${DEPLOY_SHA}" >> "${GITHUB_OUTPUT}"
+
+  deploy:
+    name: Deploy to EC2
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    env:
+      SSH_TARGET: ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}
+      IMAGE_REFERENCE: ${{ needs.publish.outputs.image }}
+      REMOTE_SCRIPT: /tmp/tripcast-web-deploy-${{ github.run_id }}.sh
+      WEB_PORT: ${{ vars.TRIPCAST_WEB_PORT || '80' }}
+
+    steps:
+      - name: Check out deployment script
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+
+      - name: Configure SSH
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
+        run: |
+          test -n "${EC2_SSH_KEY}"
+          test -n "${EC2_KNOWN_HOSTS}"
+          install -m 700 -d "${HOME}/.ssh"
+          printf '%s\n' "${EC2_SSH_KEY}" > "${HOME}/.ssh/tripcast_ec2"
+          printf '%s\n' "${EC2_KNOWN_HOSTS}" > "${HOME}/.ssh/known_hosts"
+          chmod 600 "${HOME}/.ssh/tripcast_ec2" "${HOME}/.ssh/known_hosts"
+
+      - name: Copy deployment script
+        run: |
+          scp -i "${HOME}/.ssh/tripcast_ec2" -o BatchMode=yes \
+            -o ConnectTimeout=10 -o IdentitiesOnly=yes \
+            scripts/deploy-ec2.sh "${SSH_TARGET}:${REMOTE_SCRIPT}"
+
+      - name: Log in to GHCR on EC2
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USERNAME: ${{ github.actor }}
+        run: |
+          printf '%s' "${GHCR_TOKEN}" | \
+            ssh -i "${HOME}/.ssh/tripcast_ec2" -o BatchMode=yes \
+              -o ConnectTimeout=10 -o IdentitiesOnly=yes "${SSH_TARGET}" \
+              "docker login ghcr.io --username '${GHCR_USERNAME}' --password-stdin"
+
+      - name: Replace frontend container
+        run: |
+          ssh -i "${HOME}/.ssh/tripcast_ec2" -o BatchMode=yes \
+            -o ConnectTimeout=10 -o IdentitiesOnly=yes "${SSH_TARGET}" \
+            "chmod +x '${REMOTE_SCRIPT}' && '${REMOTE_SCRIPT}' '${IMAGE_REFERENCE}' '${WEB_PORT}'"
+
+      - name: Remove deployment credentials
+        if: always()
+        run: |
+          ssh -i "${HOME}/.ssh/tripcast_ec2" -o BatchMode=yes \
+            -o ConnectTimeout=10 -o IdentitiesOnly=yes "${SSH_TARGET}" \
+            "rm -f '${REMOTE_SCRIPT}'; docker logout ghcr.io >/dev/null 2>&1 || true" || true
