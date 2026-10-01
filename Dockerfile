@@ -19,7 +19,9 @@ RUN npm run build
 
 FROM nginx:1.29-alpine AS runtime
 
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+ENV BACKEND_UPSTREAM=http://host.docker.internal:8080
+
+COPY nginx/default.conf /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80
