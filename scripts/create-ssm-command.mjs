@@ -1,3 +1,5 @@
+import process from 'node:process';
+
 const quote = (value) => `'${value.replaceAll("'", `'"'"'`)}'`;
 const required = [
   'AWS_REGION',
