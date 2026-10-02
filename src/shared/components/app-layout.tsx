@@ -6,6 +6,7 @@ import { cn } from '@/shared/lib/utils';
 const navigation = [
   { label: '홈', to: '/' },
   { label: '관광지 검색', to: '/spots' },
+  { label: '관광코스', to: '/courses' },
 ] as const;
 
 export function AppLayout() {

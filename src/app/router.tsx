@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 
+import { CourseListPage } from '@/features/courses/pages/course-list-page';
 import { HomePage } from '@/features/home/home-page';
 import { NotFoundPage } from '@/features/not-found/not-found-page';
 import { SpotDetailPage } from '@/features/spots/pages/spot-detail-page';
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
       {
         path: '/spots/:id',
         element: <SpotDetailPage />,
+      },
+      {
+        path: '/courses',
+        element: <CourseListPage />,
       },
       {
         path: '*',
