@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { CourseDetailPage } from '@/features/courses/pages/course-detail-page';
 import { CourseListPage } from '@/features/courses/pages/course-list-page';
+import { RecommendationPage } from '@/features/courses/pages/recommendation-page';
 import { HomePage } from '@/features/home/home-page';
 import { NotFoundPage } from '@/features/not-found/not-found-page';
 import { SpotDetailPage } from '@/features/spots/pages/spot-detail-page';
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
       {
         path: '/courses/:id',
         element: <CourseDetailPage />,
+      },
+      {
+        path: '/recommendations',
+        element: <RecommendationPage />,
       },
       {
         path: '*',
