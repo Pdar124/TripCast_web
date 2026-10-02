@@ -1,15 +1,15 @@
 import { ArrowLeft, MapPin } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
-import { ClimateBadge } from '@/features/spots/components/climate-badge';
 import { SpotDetailSkeleton } from '@/features/spots/components/spot-detail-skeleton';
 import { SpotMapPlaceholder } from '@/features/spots/components/spot-map-placeholder';
-import { WeatherCard } from '@/features/spots/components/weather-card';
 import { useTourSpotWeather } from '@/features/spots/hooks/use-tour-spot-weather';
 import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
+import { ClimateBadge } from '@/shared/components/climate-badge';
 import { EmptyState } from '@/shared/components/empty-state';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
+import { WeatherCard } from '@/shared/components/weather-card';
 
 function isValidId(id: string | undefined): id is string {
   return Boolean(id && /^\d+$/.test(id) && Number(id) > 0);

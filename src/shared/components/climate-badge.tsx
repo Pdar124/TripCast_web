@@ -1,8 +1,10 @@
 import { cn } from '@/shared/lib/utils';
-import type { ClimateIndex } from '@/features/spots/types';
 
 type ClimateBadgeProps = {
-  climateIndex?: ClimateIndex | null;
+  climateIndex?: {
+    score?: number | null;
+    grade?: string | null;
+  } | null;
 };
 
 const gradeStyles: Record<string, string> = {
