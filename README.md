@@ -55,7 +55,7 @@ Windows PowerShell에서는 `cp .env.example .env` 대신 `Copy-Item .env.exampl
 
 Playwright 설정과 홈 스모크 테스트는 준비되어 있습니다. 처음 실행할 때는 `npx playwright install chromium`으로 브라우저를 설치한 뒤 `npm run test:e2e`를 실행합니다.
 
-`npm run generate:api`는 로컬 백엔드가 실행 중일 때 사용합니다. 현재 `src/types/api.ts`는 빈 placeholder이며, 실제 API 타입 생성은 아직 완료하지 않았습니다.
+`npm run generate:api`는 로컬 백엔드가 실행 중일 때 사용합니다. 현재 `src/types/api.ts`는 운영 백엔드 OpenAPI 명세와 동기화되어 있습니다.
 
 ## 구현 로드맵
 
@@ -65,7 +65,7 @@ Playwright 설정과 홈 스모크 테스트는 준비되어 있습니다. 처�
 | ----- | ---- | ------------------------------------------------------------------------ |
 | 0     | 완료 | Vite, Tailwind CSS, shadcn/ui, ESLint, Prettier, openapi-typescript 셋업 |
 | 1     | 완료 | 관광지 검색·상세 및 날씨                                                 |
-| 2     | 예정 | 코스 목록·상세, 추천, 관광기후지수 차트                                  |
+| 2     | 진행 | 코스 목록·상세 완료, 추천·관광기후지수 차트 예정                          |
 | 3     | 예정 | 관리자 로그인 및 대시보드                                                |
 | 4     | 예정 | 홈 3D 히어로 섹션                                                        |
 | 5     | 예정 | 지도, E2E 테스트, 반응형 UI 다듬기                                       |
