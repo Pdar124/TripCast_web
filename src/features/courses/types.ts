@@ -1,6 +1,7 @@
 import type { components } from '@/types/api';
 
 export type TourCourseSummary = components['schemas']['TourCourseSummaryResponse'];
+export type CourseRecommendation = components['schemas']['CourseRecommendationResponse'];
 export type TourCourseStop = components['schemas']['TourCourseStopResponse'];
 export type Weather = components['schemas']['WeatherResponse'];
 export type ClimateIndex = components['schemas']['ClimateIndexResponse'];

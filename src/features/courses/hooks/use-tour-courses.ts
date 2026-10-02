@@ -11,6 +11,7 @@ export const courseQueryKeys = {
   list: ({ page, size = TOUR_COURSE_PAGE_SIZE }: GetTourCoursesParams) =>
     [...courseQueryKeys.all, 'list', page, size] as const,
   weather: (id: string) => [...courseQueryKeys.all, 'weather', id] as const,
+  recommendations: (limit: number) => [...courseQueryKeys.all, 'recommendations', limit] as const,
 };
 
 export function useTourCourses(params: GetTourCoursesParams) {
