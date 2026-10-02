@@ -1,10 +1,15 @@
 import { Cloud, CloudSun, Sun } from 'lucide-react';
 
-import type { Weather } from '@/features/spots/types';
 import { Card } from '@/shared/components/ui/card';
 
 type WeatherCardProps = {
-  weather?: Weather | null;
+  weather?: {
+    forecastDate?: string | null;
+    forecastTime?: string | null;
+    temperature?: number | null;
+    rainProbability?: number | null;
+    sky?: string | null;
+  } | null;
 };
 
 const skyMap = {

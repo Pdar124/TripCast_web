@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { WeatherCard } from '@/features/spots/components/weather-card';
+import { WeatherCard } from '@/shared/components/weather-card';
 
 describe('WeatherCard', () => {
   it.each([null, undefined])('weather가 %s여도 상세 전체를 실패시키지 않는다', (weather) => {

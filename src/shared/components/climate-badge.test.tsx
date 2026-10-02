@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { ClimateBadge } from '@/features/spots/components/climate-badge';
+import { ClimateBadge } from '@/shared/components/climate-badge';
 
 describe('ClimateBadge', () => {
   it('관광기후지수가 없으면 중립 상태를 표시한다', () => {
