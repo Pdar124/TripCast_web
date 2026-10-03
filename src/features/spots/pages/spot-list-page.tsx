@@ -29,16 +29,16 @@ export function SpotListPage() {
   }
 
   return (
-    <main className="container py-10 sm:py-14">
-      <header className="max-w-2xl">
-        <p className="text-sm font-semibold text-primary">SPOT SEARCH</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">관광지 검색</h1>
-        <p className="mt-4 leading-7 text-muted-foreground">
+    <main className="tc-page">
+      <header className="tc-page-head max-w-2xl">
+        <p className="tc-eyebrow">SPOT SEARCH</p>
+        <h1 className="tc-page-title mt-3">관광지 검색</h1>
+        <p className="tc-page-desc">
           이름으로 관광지를 찾고 위치와 오늘의 단기예보, 관광기후지수를 확인하세요.
         </p>
       </header>
 
-      <div className="mt-8 rounded-lg bg-accent/50 p-4 sm:p-5">
+      <div className="rounded-lg bg-card p-4 sm:p-5">
         <SpotSearchBar
           defaultKeyword={keyword}
           key={keyword}
@@ -46,7 +46,7 @@ export function SpotListPage() {
         />
       </div>
 
-      <section className="mt-10" aria-labelledby="spot-results-title">
+      <section className="mt-12" aria-labelledby="spot-results-title">
         <div className="mb-5 flex min-h-7 items-center justify-between gap-4">
           <h2 className="text-lg font-bold" id="spot-results-title">
             {keyword ? `“${keyword}” 검색 결과` : '전체 관광지'}
@@ -77,7 +77,7 @@ export function SpotListPage() {
         ) : (
           <>
             <div
-              className="grid gap-5 md:grid-cols-2"
+              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
               aria-busy={spotsQuery.isFetching && !spotsQuery.isPending}
             >
               {spotsQuery.data.content.map((spot) => (

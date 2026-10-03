@@ -25,7 +25,7 @@ export function SpotSearchBar({ defaultKeyword, onSearch }: SpotSearchBarProps) 
           aria-hidden="true"
         />
         <input
-          className="h-12 w-full rounded-full border bg-card py-2 pl-12 pr-5 text-base shadow-sm transition-colors placeholder:text-muted-foreground hover:border-primary/60"
+          className="h-12 w-full rounded-full border border-transparent bg-secondary py-2 pl-12 pr-5 text-sm font-medium transition-colors placeholder:text-muted-foreground hover:border-border focus:border-primary"
           name="keyword"
           onChange={(event) => setInputKeyword(event.target.value)}
           placeholder="예) 경복궁, 성산일출봉"
@@ -33,7 +33,7 @@ export function SpotSearchBar({ defaultKeyword, onSearch }: SpotSearchBarProps) 
           value={inputKeyword}
         />
       </label>
-      <Button className="h-12 rounded-full px-7" type="submit">
+      <Button className="h-12 px-8" type="submit">
         검색
       </Button>
     </form>
