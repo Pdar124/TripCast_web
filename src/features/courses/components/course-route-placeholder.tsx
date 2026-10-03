@@ -12,14 +12,14 @@ function formatCoordinate(value: number) {
 
 export function CourseRoutePlaceholder({ stops }: CourseRoutePlaceholderProps) {
   return (
-    <aside className="overflow-hidden rounded-lg border bg-muted/60 lg:sticky lg:top-24">
-      <div className="relative grid min-h-52 place-items-center overflow-hidden border-b p-6 text-center">
+    <aside className="tc-route-visual overflow-hidden rounded-lg lg:sticky lg:top-24 lg:min-h-[680px]">
+      <div className="relative grid min-h-72 place-items-center border-b border-border/60 p-6 text-center lg:min-h-[420px]">
         <div
-          className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] [background-size:32px_32px]"
+          className="absolute inset-0 bg-gradient-to-t from-background/30 to-transparent"
           aria-hidden="true"
         />
         <div className="relative space-y-3">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-card text-primary shadow-sm">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-background/90 text-primary shadow-sm">
             <MapPinned className="h-7 w-7" aria-hidden="true" />
           </span>
           <div>
@@ -29,7 +29,7 @@ export function CourseRoutePlaceholder({ stops }: CourseRoutePlaceholderProps) {
         </div>
       </div>
 
-      <ol className="max-h-[28rem] space-y-4 overflow-y-auto p-5">
+      <ol className="relative max-h-[260px] space-y-4 overflow-y-auto bg-background/85 p-5 backdrop-blur-sm">
         {stops.map(({ spot }) => (
           <li className="flex gap-3" key={spot.stopId}>
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-background text-xs font-bold text-primary shadow-sm">

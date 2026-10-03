@@ -26,16 +26,16 @@ export function CourseListPage() {
   }
 
   return (
-    <main className="container py-10 sm:py-14">
-      <header className="max-w-2xl">
-        <p className="text-sm font-semibold text-primary">COURSE GUIDE</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">관광코스</h1>
-        <p className="mt-4 leading-7 text-muted-foreground">
+    <main className="tc-page">
+      <header className="tc-page-head max-w-2xl">
+        <p className="tc-eyebrow">COURSE GUIDE</p>
+        <h1 className="tc-page-title mt-3">관광코스</h1>
+        <p className="tc-page-desc">
           방문 순서와 이동 시간을 따라 코스를 살펴보고 정류지별 날씨를 미리 확인하세요.
         </p>
       </header>
 
-      <section className="mt-10" aria-labelledby="course-results-title">
+      <section className="mt-6" aria-labelledby="course-results-title">
         <div className="mb-5 flex min-h-7 items-center justify-between gap-4">
           <h2 className="text-lg font-bold" id="course-results-title">
             전체 관광코스
@@ -61,7 +61,7 @@ export function CourseListPage() {
         ) : (
           <>
             <div
-              className="grid gap-5 md:grid-cols-2"
+              className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
               aria-busy={coursesQuery.isFetching && !coursesQuery.isPending}
             >
               {coursesQuery.data.content.map((course) => (
