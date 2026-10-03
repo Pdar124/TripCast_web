@@ -93,7 +93,7 @@ export function HomePage() {
           src="/assets/img/hero-terrain.jpg"
           width="1920"
         />
-        <div className="absolute inset-0 bg-[var(--tc-hero-scrim)]" aria-hidden="true" />
+        <div className="absolute inset-0 z-[1] bg-[var(--tc-hero-scrim)]" aria-hidden="true" />
         <div className="container relative z-10 flex h-full max-w-[720px] flex-col justify-center">
           <div>
             <p className="tc-eyebrow">관광코스 날씨 통합 서비스</p>
