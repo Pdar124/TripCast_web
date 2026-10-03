@@ -3,46 +3,48 @@ import { Link } from 'react-router-dom';
 
 import type { CourseRecommendation } from '@/features/courses/types';
 import { ClimateBadge } from '@/shared/components/climate-badge';
-import { Card } from '@/shared/components/ui/card';
-import { cn } from '@/shared/lib/utils';
+import { getSpotImage } from '@/shared/lib/spot-image';
 
 type RecommendationCardProps = {
   course: CourseRecommendation;
   rank: number;
 };
 
-const rankStyles: Record<number, string> = {
-  1: 'bg-amber-400 text-amber-950',
-  2: 'bg-slate-300 text-slate-900',
-  3: 'bg-orange-300 text-orange-950',
-};
-
 export function RecommendationCard({ course, rank }: RecommendationCardProps) {
+  const image = getSpotImage(course.representativeSpotName);
+
   return (
     <li>
-      <Card className="group transition duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md motion-reduce:transform-none">
+      <article className="group tc-interactive-card">
         <Link
-          className="grid gap-5 rounded-lg p-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:p-6"
+          className="grid gap-4 p-4 sm:grid-cols-[56px_96px_minmax(0,1fr)_auto] sm:items-center sm:gap-5"
           to={`/courses/${course.courseId}`}
         >
           <span
-            className={cn(
-              'grid h-11 w-11 place-items-center rounded-full text-sm font-extrabold tabular-nums',
-              rankStyles[rank] ?? 'bg-accent text-accent-foreground',
-            )}
+            className="grid h-14 w-14 place-items-center rounded-full bg-secondary text-lg font-black tabular-nums"
             aria-label={`${rank}위`}
           >
-            {rank}
+            {String(rank).padStart(2, '0')}
           </span>
+
+          <div
+            className={
+              image
+                ? 'aspect-square w-24 overflow-hidden rounded-md'
+                : 'tc-route-visual aspect-square w-24 rounded-md'
+            }
+            aria-hidden="true"
+          >
+            {image && (
+              <img alt="" className="h-full w-full object-cover" loading="lazy" src={image} />
+            )}
+          </div>
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
-                {course.representativeThemeName}
-              </span>
-              <ClimateBadge climateIndex={course.climateIndex} />
+              <span className="tc-tag">{course.representativeThemeName}</span>
             </div>
-            <h2 className="mt-3 break-keep text-xl font-bold tracking-tight">
+            <h2 className="mt-2 break-keep text-lg font-bold tracking-tight">
               {course.representativeSpotName}에서 시작하는 코스
             </h2>
             <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
@@ -51,15 +53,15 @@ export function RecommendationCard({ course, rank }: RecommendationCardProps) {
             </p>
           </div>
 
-          <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary sm:justify-self-end">
-            상세 보기
+          <span className="flex items-center gap-3 sm:justify-self-end">
+            <ClimateBadge climateIndex={course.climateIndex} />
             <ArrowRight
-              className="h-4 w-4 transition-transform group-hover:translate-x-1 motion-reduce:transform-none"
-              aria-hidden="true"
+              className="h-5 w-5 text-[var(--tc-accent-ink)] transition-transform group-hover:translate-x-1"
+              aria-label="상세 보기"
             />
           </span>
         </Link>
-      </Card>
+      </article>
     </li>
   );
 }

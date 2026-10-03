@@ -6,10 +6,11 @@ export function RecommendationListSkeleton() {
     <div className="space-y-4" aria-label="추천 코스를 불러오는 중" role="status">
       {Array.from({ length: 5 }, (_, index) => (
         <Card
-          className="grid gap-5 p-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:p-6"
+          className="grid gap-4 p-4 sm:grid-cols-[56px_96px_minmax(0,1fr)_auto] sm:items-center sm:gap-5"
           key={index}
         >
-          <Skeleton className="h-11 w-11 rounded-full" />
+          <Skeleton className="h-14 w-14 rounded-full" />
+          <Skeleton className="aspect-square w-24 rounded-md" />
           <div className="space-y-3">
             <div className="flex gap-2">
               <Skeleton className="h-7 w-16 rounded-full" />
