@@ -2,7 +2,7 @@ import { ArrowLeft, MapPin } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 import { SpotDetailSkeleton } from '@/features/spots/components/spot-detail-skeleton';
-import { SpotMapPlaceholder } from '@/features/spots/components/spot-map-placeholder';
+import { SpotMap } from '@/features/spots/components/spot-map';
 import { useTourSpotWeather } from '@/features/spots/hooks/use-tour-spot-weather';
 import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
 import { ClimateBadge } from '@/shared/components/climate-badge';
@@ -80,10 +80,16 @@ export function SpotDetailPage() {
             </section>
           </div>
 
-          <SpotMapPlaceholder
-            latitude={spotQuery.data.latitude}
-            longitude={spotQuery.data.longitude}
-            name={spotQuery.data.tourSpotName}
+          <SpotMap
+            label={`${spotQuery.data.tourSpotName} 위치 지도`}
+            markers={[
+              {
+                id: spotQuery.data.tourSpotId,
+                name: spotQuery.data.tourSpotName,
+                latitude: spotQuery.data.latitude,
+                longitude: spotQuery.data.longitude,
+              },
+            ]}
           />
         </div>
       )}
