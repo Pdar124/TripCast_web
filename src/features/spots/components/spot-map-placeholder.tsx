@@ -1,14 +1,30 @@
 import { MapPinned } from 'lucide-react';
+import type { ReactNode } from 'react';
+
+import { cn } from '@/shared/lib/utils';
 
 type SpotMapPlaceholderProps = {
-  latitude: number;
-  longitude: number;
-  name: string;
+  description: string;
+  title?: string;
+  action?: ReactNode;
+  footer?: string;
+  className?: string;
 };
 
-export function SpotMapPlaceholder({ latitude, longitude, name }: SpotMapPlaceholderProps) {
+export function SpotMapPlaceholder({
+  description,
+  title = '지도 영역',
+  action,
+  footer,
+  className,
+}: SpotMapPlaceholderProps) {
   return (
-    <section className="tc-route-visual relative grid min-h-80 place-items-center rounded-lg p-6 text-center lg:min-h-[640px]">
+    <section
+      className={cn(
+        'tc-route-visual relative grid min-h-80 place-items-center rounded-lg p-6 text-center lg:min-h-[640px]',
+        className,
+      )}
+    >
       <div
         className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent"
         aria-hidden="true"
@@ -18,15 +34,15 @@ export function SpotMapPlaceholder({ latitude, longitude, name }: SpotMapPlaceho
           <MapPinned className="h-8 w-8" aria-hidden="true" />
         </span>
         <div>
-          <h2 className="text-lg font-bold">지도 영역</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            카카오맵 API 키 설정 후 {name}의 위치를 표시합니다.
-          </p>
+          <h2 className="text-lg font-bold">{title}</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
         </div>
-        <p className="rounded-full bg-background/90 px-4 py-2 text-xs font-bold text-muted-foreground shadow-sm">
-          {Number.isFinite(latitude) ? latitude.toFixed(4) : '위도 정보 없음'} ·{' '}
-          {Number.isFinite(longitude) ? longitude.toFixed(4) : '경도 정보 없음'}
-        </p>
+        {action}
+        {footer && (
+          <p className="rounded-full bg-background/90 px-4 py-2 text-xs font-bold text-muted-foreground shadow-sm">
+            {footer}
+          </p>
+        )}
       </div>
     </section>
   );
