@@ -24,5 +24,6 @@ describe('HomePage', () => {
       'href',
       '/spots',
     );
+    expect(document.querySelector('img[src="/assets/img/hero-terrain.jpg"]')).toBeInTheDocument();
   });
 });
