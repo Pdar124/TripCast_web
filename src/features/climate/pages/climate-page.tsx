@@ -199,7 +199,7 @@ export function ClimatePage() {
         {regions.map(([id, name]) => (
           <button
             aria-pressed={id === regionId}
-            className="rounded-full bg-secondary px-4 py-2 text-sm font-bold transition hover:bg-[var(--tc-surface-hover)] aria-pressed:bg-primary"
+            className="rounded-full bg-secondary px-4 py-2 text-sm font-bold transition max-sm:min-h-11 hover:bg-[var(--tc-surface-hover)] aria-pressed:bg-primary"
             key={id}
             onClick={() => selectRegion(id)}
             type="button"
