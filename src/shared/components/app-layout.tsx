@@ -2,6 +2,7 @@ import { Moon, Sun } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 
+import { useAuthStore } from '@/features/admin/store/auth-store';
 import { cn } from '@/shared/lib/utils';
 
 const navigation = [
@@ -29,6 +30,7 @@ function BrandMark() {
 }
 
 export function AppLayout() {
+  const token = useAuthStore((state) => state.token);
   const [isDark, setIsDark] = useState(() => {
     try {
       return localStorage.getItem('tripcast.theme') === 'dark';
@@ -96,6 +98,12 @@ export function AppLayout() {
               <Moon className="h-5 w-5" aria-hidden="true" />
             )}
           </button>
+          <Link
+            className="inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-black/15 px-4 text-sm font-bold transition-colors hover:bg-secondary dark:border-white/15"
+            to={token ? '/admin' : '/admin/login'}
+          >
+            {token ? '관리자 대시보드' : '관리자'}
+          </Link>
         </div>
       </header>
 
@@ -124,6 +132,11 @@ export function AppLayout() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link className="hover:text-foreground hover:underline" to="/admin/login">
+                  관리자 로그인
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

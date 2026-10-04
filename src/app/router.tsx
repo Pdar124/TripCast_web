@@ -1,5 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 
+import { ProtectedAdminRoute } from '@/features/admin/components/protected-admin-route';
+import { AdminDashboardPage } from '@/features/admin/pages/admin-dashboard-page';
+import { AdminLoginPage } from '@/features/admin/pages/admin-login-page';
 import { CourseDetailPage } from '@/features/courses/pages/course-detail-page';
 import { ClimatePage } from '@/features/climate/pages/climate-page';
 import { CourseListPage } from '@/features/courses/pages/course-list-page';
@@ -41,6 +44,18 @@ export const router = createBrowserRouter([
       {
         path: '/climate',
         element: <ClimatePage />,
+      },
+      {
+        path: '/admin/login',
+        element: <AdminLoginPage />,
+      },
+      {
+        path: '/admin',
+        element: (
+          <ProtectedAdminRoute>
+            <AdminDashboardPage />
+          </ProtectedAdminRoute>
+        ),
       },
       {
         path: '*',
