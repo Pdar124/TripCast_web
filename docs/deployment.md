@@ -148,6 +148,8 @@ HSTS를 적용했다면 브라우저가 설정한 기간 동안 HTTP 접속이 �
 BACKEND_UPSTREAM=http://<BACKEND_PRIVATE_IP>:8080
 ```
 
+컨테이너 Nginx는 호스트 Nginx가 보낸 `X-Forwarded-Proto`(HTTPS에서는 `https`)를 `/api/` 요청에 그대로 실어 백엔드로 전달합니다. 컨테이너는 `127.0.0.1`로만 publish되어 호스트 Nginx만 접근하므로 이 값을 신뢰합니다. 헤더가 없으면 컨테이너의 `$scheme`을 사용합니다.
+
 백엔드 IP는 Docker 이미지에 포함하지 않습니다. GitHub repository Variable로 관리하여 이미지를 다시 빌드하지 않고 배포 대상만 변경할 수 있습니다.
 
 ## GitHub OIDC 공급자
