@@ -20,6 +20,8 @@ test('관광코스 목록에서 상세로 이동해 정류지와 날씨를 확�
   ).toBeVisible();
   await expect(page.getByRole('link', { name: '국립고궁박물관' })).toBeVisible();
   await expect(page.getByText('이동 12분')).toBeVisible();
+  // 카카오맵 앱 키가 없는 환경에서는 경로 지도 대신 플레이스홀더와 방문 순서 목록을 보여 준다.
+  await expect(page.getByRole('heading', { name: '코스 경로' })).toBeVisible();
   // 날씨 조회에 실패한 정류지도 나머지 정보는 그대로 보여 준다.
   await expect(page.getByText('날씨 정보를 불러오지 못했습니다')).toBeVisible();
 });
