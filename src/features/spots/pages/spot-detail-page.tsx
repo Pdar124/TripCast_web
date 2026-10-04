@@ -21,13 +21,15 @@ export function SpotDetailPage() {
   const spotQuery = useTourSpotWeather(validId);
 
   return (
-    <main className="container py-10 sm:py-14">
-      <Button asChild className="mb-8 rounded-full" size="sm" variant="outline">
-        <Link to="/spots">
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          검색으로 돌아가기
-        </Link>
-      </Button>
+    <main className="tc-page">
+      <div className="tc-page-head">
+        <Button asChild size="sm" variant="outline">
+          <Link to="/spots">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            검색으로 돌아가기
+          </Link>
+        </Button>
+      </div>
 
       {!validId ? (
         <EmptyState
@@ -50,13 +52,14 @@ export function SpotDetailPage() {
           variant="error"
         />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:items-start">
           <div className="space-y-5">
-            <Card className="p-6">
+            <Card className="p-6 sm:p-7">
               <span className="grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground">
                 <MapPin className="h-6 w-6" aria-hidden="true" />
               </span>
-              <h1 className="mt-5 break-keep text-3xl font-bold tracking-tight">
+              <p className="tc-eyebrow mt-5">SPOT WEATHER</p>
+              <h1 className="mt-2 break-keep text-3xl font-bold tracking-tight">
                 {spotQuery.data.tourSpotName}
               </h1>
               <p className="mt-3 text-sm text-muted-foreground">

@@ -31,19 +31,19 @@ export function RecommendationPage() {
   }
 
   return (
-    <main className="container py-10 sm:py-14">
-      <header className="max-w-2xl">
-        <p className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+    <main className="tc-page">
+      <header className="tc-page-head max-w-2xl">
+        <p className="tc-eyebrow inline-flex items-center gap-2">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
           TODAY'S PICKS
         </p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">오늘 가기 좋은 코스</h1>
-        <p className="mt-4 leading-7 text-muted-foreground">
+        <h1 className="tc-page-title mt-3">오늘 가기 좋은 코스</h1>
+        <p className="tc-page-desc">
           최신 관광기후지수가 높은 순서로 지금 여행하기 좋은 관광코스를 추천합니다.
         </p>
       </header>
 
-      <section className="mt-10" aria-labelledby="recommendation-results-title">
+      <section className="mt-6" aria-labelledby="recommendation-results-title">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold" id="recommendation-results-title">
@@ -51,11 +51,11 @@ export function RecommendationPage() {
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">최대 {limit}개 코스를 표시합니다.</p>
           </div>
-          <div className="flex rounded-lg border bg-card p-1" aria-label="표시할 추천 코스 수">
+          <div className="flex rounded-full bg-secondary p-1" aria-label="표시할 추천 코스 수">
             {recommendationLimits.map((option) => (
               <Button
                 aria-pressed={limit === option}
-                className={cn('min-w-12', limit === option && 'shadow-sm')}
+                className={cn('min-w-14', limit === option && 'shadow-sm')}
                 key={option}
                 onClick={() => updateLimit(option)}
                 size="sm"

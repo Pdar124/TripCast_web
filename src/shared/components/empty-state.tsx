@@ -13,10 +13,10 @@ export function EmptyState({ title, description, action, variant = 'empty' }: Em
 
   return (
     <section
-      className="grid justify-items-center gap-4 rounded-lg border bg-card px-6 py-12 text-center"
+      className="grid justify-items-center gap-4 rounded-lg bg-card px-6 py-12 text-center"
       role={variant === 'error' ? 'alert' : 'status'}
     >
-      <span className="grid h-14 w-14 place-items-center rounded-full bg-muted text-muted-foreground">
+      <span className="grid h-14 w-14 place-items-center rounded-full bg-secondary text-muted-foreground">
         <Icon className="h-6 w-6" aria-hidden="true" />
       </span>
       <div className="space-y-2">

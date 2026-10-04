@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 
 import { CourseDetailPage } from '@/features/courses/pages/course-detail-page';
+import { ClimatePage } from '@/features/climate/pages/climate-page';
 import { CourseListPage } from '@/features/courses/pages/course-list-page';
 import { RecommendationPage } from '@/features/courses/pages/recommendation-page';
 import { HomePage } from '@/features/home/home-page';
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
       {
         path: '/recommendations',
         element: <RecommendationPage />,
+      },
+      {
+        path: '/climate',
+        element: <ClimatePage />,
       },
       {
         path: '*',

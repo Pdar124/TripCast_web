@@ -25,13 +25,15 @@ export function CourseDetailPage() {
   const firstStop = stops[0]?.spot;
 
   return (
-    <main className="container py-10 sm:py-14">
-      <Button asChild className="mb-8 rounded-full" size="sm" variant="outline">
-        <Link to="/courses">
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          코스 목록으로 돌아가기
-        </Link>
-      </Button>
+    <main className="tc-page">
+      <div className="tc-page-head">
+        <Button asChild size="sm" variant="outline">
+          <Link to="/courses">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            코스 목록으로 돌아가기
+          </Link>
+        </Button>
+      </div>
 
       {!validId ? (
         <EmptyState
@@ -59,13 +61,13 @@ export function CourseDetailPage() {
           title="정류지가 없습니다"
         />
       ) : (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)] lg:items-start">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:items-start">
           <div className="min-w-0 space-y-8">
             <Card className="p-6 sm:p-7">
               <span className="grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground">
                 <Route className="h-6 w-6" aria-hidden="true" />
               </span>
-              <p className="mt-5 text-sm font-semibold text-primary">TOUR COURSE</p>
+              <p className="tc-eyebrow mt-5">TOUR COURSE</p>
               <h1 className="mt-2 break-keep text-3xl font-bold tracking-tight">
                 {firstStop?.tourSpotName}에서 시작하는 코스
               </h1>
