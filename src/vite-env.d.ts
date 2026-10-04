@@ -8,10 +8,3 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
-
-interface Window {
-  TripCastHero?: {
-    mount: (host: HTMLElement | null) => void;
-    unmount: () => void;
-  };
-}
