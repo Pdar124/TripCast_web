@@ -12,6 +12,8 @@ export type KakaoMap = {
   ) => void;
 };
 export type KakaoMarker = { setMap: (map: KakaoMap | null) => void };
+export type KakaoCustomOverlay = { setMap: (map: KakaoMap | null) => void };
+export type KakaoPolyline = { setMap: (map: KakaoMap | null) => void };
 
 export type KakaoMapsApi = {
   load: (callback: () => void) => void;
@@ -24,6 +26,23 @@ export type KakaoMapsApi = {
     title?: string;
     clickable?: boolean;
   }) => KakaoMarker;
+  CustomOverlay: new (options: {
+    map?: KakaoMap;
+    position: KakaoLatLng;
+    content: HTMLElement | string;
+    xAnchor?: number;
+    yAnchor?: number;
+    zIndex?: number;
+    clickable?: boolean;
+  }) => KakaoCustomOverlay;
+  Polyline: new (options: {
+    map?: KakaoMap;
+    path: KakaoLatLng[];
+    strokeWeight?: number;
+    strokeColor?: string;
+    strokeOpacity?: number;
+    strokeStyle?: 'solid' | 'shortdash' | 'dash';
+  }) => KakaoPolyline;
   event: {
     addListener: (target: KakaoMarker, type: 'click', handler: () => void) => void;
     removeListener: (target: KakaoMarker, type: 'click', handler: () => void) => void;

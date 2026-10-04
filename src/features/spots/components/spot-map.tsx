@@ -1,14 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { SpotMapPlaceholder } from '@/features/spots/components/spot-map-placeholder';
 import { Button } from '@/shared/components/ui/button';
-import {
-  getKakaoMapAppKey,
-  isValidCoordinate,
-  loadKakaoMaps,
-  type KakaoMap,
-  type KakaoMapsApi,
-} from '@/shared/lib/kakao-maps';
+import { useKakaoMaps } from '@/shared/hooks/use-kakao-maps';
+import { getKakaoMapAppKey, isValidCoordinate, type KakaoMap } from '@/shared/lib/kakao-maps';
 import { cn } from '@/shared/lib/utils';
 
 export type SpotMapMarker = {
@@ -31,9 +26,6 @@ const MAP_LEVEL = 4;
 const MAP_PADDING = 48;
 const mapSizeClassName = 'h-80 sm:h-[460px] lg:h-[640px]';
 
-type LoadState =
-  { status: 'loading' } | { status: 'ready'; maps: KakaoMapsApi } | { status: 'error' };
-
 /**
  * 카카오맵에 마커를 표시한다. 앱 키가 없거나 표시할 좌표가 없으면 플레이스홀더를,
  * SDK 로드에 실패하면 안내 문구와 다시 시도 버튼을 보여 준다.
@@ -44,8 +36,6 @@ export function SpotMap({ markers, onSelectMarker, label, className }: SpotMapPr
     () => markers.filter((marker) => isValidCoordinate(marker.latitude, marker.longitude)),
     [markers],
   );
-  const [attempt, setAttempt] = useState(0);
-  const [loadState, setLoadState] = useState<LoadState>({ status: 'loading' });
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<{ container: HTMLElement; map: KakaoMap } | null>(null);
   const onSelectRef = useRef(onSelectMarker);
@@ -54,32 +44,7 @@ export function SpotMap({ markers, onSelectMarker, label, className }: SpotMapPr
     onSelectRef.current = onSelectMarker;
   }, [onSelectMarker]);
 
-  const shouldLoad = appKey !== '' && validMarkers.length > 0;
-
-  useEffect(() => {
-    if (!shouldLoad) return;
-
-    let cancelled = false;
-    loadKakaoMaps(appKey).then(
-      (maps) => {
-        if (!cancelled) setLoadState({ status: 'ready', maps });
-      },
-      () => {
-        if (!cancelled) setLoadState({ status: 'error' });
-      },
-    );
-
-    return () => {
-      cancelled = true;
-    };
-  }, [appKey, shouldLoad, attempt]);
-
-  function retry() {
-    setLoadState({ status: 'loading' });
-    setAttempt((current) => current + 1);
-  }
-
-  const maps = loadState.status === 'ready' ? loadState.maps : null;
+  const { status, maps, retry } = useKakaoMaps(appKey, appKey !== '' && validMarkers.length > 0);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -146,7 +111,7 @@ export function SpotMap({ markers, onSelectMarker, label, className }: SpotMapPr
     );
   }
 
-  if (loadState.status === 'error') {
+  if (status === 'error') {
     return (
       <SpotMapPlaceholder
         action={
@@ -163,7 +128,7 @@ export function SpotMap({ markers, onSelectMarker, label, className }: SpotMapPr
 
   return (
     <div
-      aria-busy={loadState.status === 'loading'}
+      aria-busy={status === 'loading'}
       aria-label={label}
       className={cn('tc-route-visual overflow-hidden rounded-lg', mapSizeClassName, className)}
       ref={containerRef}

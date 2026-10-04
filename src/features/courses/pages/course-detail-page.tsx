@@ -1,8 +1,9 @@
 import { ArrowLeft, Route } from 'lucide-react';
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { CourseDetailSkeleton } from '@/features/courses/components/course-detail-skeleton';
-import { CourseRoutePlaceholder } from '@/features/courses/components/course-route-placeholder';
+import { CourseRoutePanel } from '@/features/courses/components/course-route-panel';
 import { CourseStopItem } from '@/features/courses/components/course-stop-item';
 import { useTourCourseWeather } from '@/features/courses/hooks/use-tour-course-weather';
 import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
@@ -19,9 +20,13 @@ export function CourseDetailPage() {
   const validId = isValidId(id) ? id : undefined;
   const courseQuery = useTourCourseWeather(validId);
 
-  const stops = courseQuery.data
-    ? [...courseQuery.data.stops].sort((a, b) => a.spot.courseOrder - b.spot.courseOrder)
-    : [];
+  const stops = useMemo(
+    () =>
+      courseQuery.data
+        ? [...courseQuery.data.stops].sort((a, b) => a.spot.courseOrder - b.spot.courseOrder)
+        : [],
+    [courseQuery.data],
+  );
   const firstStop = stops[0]?.spot;
 
   return (
@@ -93,7 +98,7 @@ export function CourseDetailPage() {
             </section>
           </div>
 
-          <CourseRoutePlaceholder stops={stops} />
+          <CourseRoutePanel stops={stops} />
         </div>
       )}
     </main>
