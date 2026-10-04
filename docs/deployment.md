@@ -1,6 +1,6 @@
 # 프론트엔드 배포
 
-TripCast 프론트엔드는 React 정적 파일과 Nginx를 하나의 Docker 이미지로 만들고, GHCR을 거쳐 백엔드와 분리된 EC2에 배포합니다. 이미지 경로는 `ghcr.io/pdar124/tripcast-web`입니다.
+TripCast 프론트엔드는 React 정적 파일과 Nginx를 하나의 Docker 이미지로 만들고, GHCR을 거쳐 백엔드와 분리된 EC2에 배포합니다. 이미지 경로는 `ghcr.io/trip-cast/tripcast-web`입니다.
 
 ```text
 사용자
@@ -89,7 +89,7 @@ GitHub Actions 전용 IAM 역할을 만들고 [github-oidc-trust-policy.json](..
 이 저장소는 다음 immutable OIDC subject를 사용합니다.
 
 ```text
-repo:Pdar124@206502493/TripCast-web@1383867320:environment:production
+repo:Trip-Cast@337654581/TripCast-web@1383867320:environment:production
 ```
 
 GitHub의 `production` 환경은 `main` 브랜치만 배포할 수 있도록 제한합니다.

@@ -22,7 +22,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: pdar124/tripcast-web
+  IMAGE_NAME: trip-cast/tripcast-web
   DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
 jobs:
