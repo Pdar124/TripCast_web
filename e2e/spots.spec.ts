@@ -1,0 +1,61 @@
+import { expect, test } from '@playwright/test';
+
+import { spotWeather, spots } from './support/fixtures';
+import { mockApi, pageOf } from './support/mock-api';
+
+test.beforeEach(async ({ page }) => {
+  await mockApi(page, [
+    {
+      path: '/api/tour-spots',
+      respond: ({ url }) => {
+        const keyword = url.searchParams.get('keyword') ?? '';
+        return { body: pageOf(spots.filter((spot) => spot.name.includes(keyword))) };
+      },
+    },
+    {
+      path: /^\/api\/tour-spots\/\d+\/weather$/,
+      respond: ({ url }) => ({ body: spotWeather(Number(url.pathname.split('/')[3])) }),
+    },
+  ]);
+});
+
+test('관광지를 검색해 상세 페이지로 이동한다', async ({ page }) => {
+  await page.goto('/spots');
+  await expect(page.getByRole('link', { name: /성산일출봉/ })).toBeVisible();
+
+  await page.getByRole('searchbox', { name: '관광지 검색어' }).fill('경복');
+  await page.getByRole('button', { name: '검색' }).click();
+
+  await expect(page).toHaveURL(/\/spots\?keyword=/);
+  await expect(page.getByRole('link', { name: /성산일출봉/ })).toHaveCount(0);
+  await page.getByRole('link', { name: /경복궁/ }).click();
+
+  await expect(page).toHaveURL(/\/spots\/1$/);
+  await expect(page.getByRole('heading', { level: 1, name: '경복궁' })).toBeVisible();
+  await expect(page.getByText('82점')).toBeVisible();
+  await expect(page.getByText('21°')).toBeVisible();
+  // 카카오맵 앱 키가 없는 환경에서는 플레이스홀더를 보여 준다.
+  await expect(page.getByRole('heading', { name: '지도 영역' })).toBeVisible();
+});
+
+test('목록과 지도 보기를 전환한다', async ({ page }) => {
+  await page.goto('/spots');
+
+  await page.getByRole('button', { name: '지도' }).click();
+  await expect(page).toHaveURL(/view=map/);
+  await expect(page.getByRole('heading', { name: '지도 영역' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /경복궁/ })).toHaveCount(0);
+
+  await page.getByRole('button', { name: '목록' }).click();
+  await expect(page).not.toHaveURL(/view=map/);
+  await expect(page.getByRole('link', { name: /경복궁/ })).toBeVisible();
+});
+
+test('검색 결과가 없으면 안내 문구를 보여 준다', async ({ page }) => {
+  await page.goto('/spots');
+
+  await page.getByRole('searchbox', { name: '관광지 검색어' }).fill('없는관광지');
+  await page.getByRole('button', { name: '검색' }).click();
+
+  await expect(page.getByRole('heading', { name: '검색 결과가 없습니다' })).toBeVisible();
+});
