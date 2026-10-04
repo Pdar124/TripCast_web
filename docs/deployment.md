@@ -56,96 +56,89 @@ Systems Manager의 `Fleet Manager > Managed nodes`에서도 프론트 인스턴�
 
 배포 도메인은 DuckDNS 서브도메인 `tripcastwith.duckdns.org`이고, 인증서는 Let's Encrypt(무료, 90일 만료, 자동 갱신)를 사용합니다. DuckDNS는 무료 서브도메인이라 서비스 종료나 장애에 영향을 받으므로, 서비스가 안정되면 직접 구매한 도메인으로 옮기는 것을 권장합니다.
 
-설정 파일은 두 단계로 나뉩니다. 인증서 파일이 없으면 `ssl_certificate` 경로 때문에 `nginx -t`가 실패하므로, 발급 전에는 80 포트만 쓰는 1단계 파일을 사용합니다.
+저장소가 관리하는 호스트 Nginx 설정은 [tripcast-web.conf](../infra/nginx/default.d/tripcast-web.conf) 하나이며 `location /`이 컨테이너(`127.0.0.1:3000`)로 프록시하고 `X-Forwarded-Proto`를 전달합니다. Amazon Linux 2023에서는 이 파일을 `/etc/nginx/default.d/tripcast-web.conf`로 설치합니다. TLS 설정(443, 인증서 경로, 80→443 리다이렉트)은 `certbot --nginx`가 서버의 `/etc/nginx/nginx.conf`에 직접 추가하며 저장소에는 없습니다.
 
-| 단계 | 파일                                                                   | 용도                                                   |
-| ---- | ---------------------------------------------------------------------- | ------------------------------------------------------ |
-| 1    | [tripcast-web.http.conf](../infra/nginx/conf.d/tripcast-web.http.conf) | 80만 사용. 인증서 발급용 (`server_name`, ACME 경로)    |
-| 2    | [tripcast-web.conf](../infra/nginx/conf.d/tripcast-web.conf)           | 80→443 리다이렉트와 443 TLS. 발급 후 1단계 파일을 대체 |
+### 현재 서버 구성 (스냅샷)
 
-Amazon Linux 2023의 `default.d`는 배포판 기본 server 블록(`server_name _`) 안에 include되어 `server_name`과 443 설정을 둘 수 없으므로, 이 저장소의 설정은 `/etc/nginx/conf.d/`에 설치합니다.
+프론트 EC2에는 이미 HTTPS가 적용되어 있습니다. 인증서는 2027-01-02에 만료되며 갱신 주기에 따라 자동 갱신됩니다. 구조는 다음과 같습니다.
 
-### 사전 준비
+- `/etc/nginx/nginx.conf`의 기본 server 블록은 `server_name tripcastwith.duckdns.org;`입니다. certbot이 이 블록에 `listen 443 ssl`, `listen [::]:443 ssl ipv6only=on`, `ssl_certificate`, `ssl_certificate_key`, `include /etc/letsencrypt/options-ssl-nginx.conf`, `ssl_dhparam`을 추가했습니다.
+- 이 블록은 `include /etc/nginx/default.d/*.conf;`로 `default.d/tripcast-web.conf`를 불러와 컨테이너로 프록시합니다. 따라서 이 파일을 삭제하거나 이름을 바꾸면 사이트가 응답하지 않습니다.
+- `nginx.conf` 끝에 certbot이 80용 server 블록을 추가했고, `if ($host = tripcastwith.duckdns.org)`에서 `301`로 `https://$host$request_uri`로 리다이렉트합니다.
+- 변경 전 `nginx.conf`는 `/etc/nginx/nginx.conf.bak`에 백업되어 있습니다.
 
-1. DuckDNS의 `tripcastwith` 서브도메인이 프론트 EC2의 공인 IP(`3.34.192.80`)를 가리키는지 확인합니다. EC2를 중지/시작하면 공인 IP가 바뀌므로 Elastic IP를 연결하는 것을 권장합니다. 연결하지 않으면 IP가 바뀔 때마다 DuckDNS 레코드도 갱신해야 합니다.
-2. 프론트 보안 그룹에 TCP 80과 443 인바운드를 `0.0.0.0/0`으로 허용합니다. 80은 인증서 발급·갱신 검증(http-01)과 HTTPS 리다이렉트에 필요하므로 닫지 않습니다. 22/3000은 계속 열지 않습니다.
-3. certbot을 설치하고 검증용 디렉터리를 만듭니다.
+### 적용 절차
 
-```bash
-sudo dnf install -y certbot
-sudo mkdir -p /var/www/certbot
-```
+새 EC2에 같은 구성을 만들 때의 순서입니다.
 
-certbot의 `nginx` 플러그인(`python3-certbot-nginx`)은 사용하지 않습니다. 이 저장소의 Nginx 설정을 certbot이 고쳐 쓰지 않도록 `--webroot` 방식으로 발급하고, 최종 설정은 저장소 파일 하나로 관리합니다.
+1. DuckDNS의 `tripcastwith` 서브도메인이 프론트 EC2의 공인 IP를 가리키게 합니다. EC2를 중지/시작하면 공인 IP가 바뀌므로 Elastic IP를 연결하는 것을 권장합니다. 연결하지 않으면 IP가 바뀔 때마다 DuckDNS 레코드도 갱신해야 합니다.
+2. 프론트 보안 그룹에 TCP 80과 443 인바운드를 `0.0.0.0/0`으로 허용합니다. 80은 인증서 발급·갱신 검증(http-01)과 HTTPS 리다이렉트에 필요하므로 닫지 않습니다. 22/3000은 열지 않습니다.
+3. certbot과 Nginx 플러그인을 설치합니다.
 
-### 1단계: 80 전용 설정 적용
+   ```bash
+   sudo dnf install -y certbot python3-certbot-nginx
+   ```
 
-저장소를 clone한 디렉터리에서 실행합니다.
+4. `default.d/tripcast-web.conf`를 설치한 상태에서 `nginx.conf`의 기본 server 블록 `server_name`을 도메인으로 바꿉니다. certbot은 `server_name`이 일치하는 블록을 찾아 인증서를 설치하므로 `server_name _;` 상태에서는 `Could not automatically find a matching server block` 오류가 납니다.
 
-```bash
-sudo install -m 644 infra/nginx/conf.d/tripcast-web.http.conf /etc/nginx/conf.d/tripcast-web.conf
-sudo nginx -t && sudo systemctl reload nginx
-curl -i http://tripcastwith.duckdns.org/healthz
-```
+   ```bash
+   sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+   sudo vi /etc/nginx/nginx.conf   # server_name _;  →  server_name tripcastwith.duckdns.org;
+   sudo nginx -t && sudo systemctl reload nginx
+   ```
 
-`200 ok`가 응답되어야 합니다. 이 단계에서는 기존 `/etc/nginx/default.d/tripcast-web.conf`를 지우지 않아 IP 주소 접속도 계속 동작합니다.
+5. 인증서를 발급하고 설치합니다.
 
-### 인증서 발급
+   ```bash
+   sudo certbot --nginx -d tripcastwith.duckdns.org -m <이메일> --agree-tos --no-eff-email --redirect
+   ```
 
-```bash
-sudo certbot certonly --webroot -w /var/www/certbot -d tripcastwith.duckdns.org \
-  --deploy-hook "systemctl reload nginx"
-```
+   발급은 성공했지만 설치 단계에서 위 오류가 났다면 `server_name`을 고친 뒤 다시 설치만 수행합니다.
 
-이메일 입력과 약관 동의는 프롬프트를 따릅니다. 성공하면 `/etc/letsencrypt/live/tripcastwith.duckdns.org/`에 `fullchain.pem`과 `privkey.pem`이 생깁니다. `--deploy-hook`은 갱신될 때마다 Nginx를 reload하여 새 인증서를 적용합니다.
+   ```bash
+   sudo certbot install --cert-name tripcastwith.duckdns.org --nginx
+   ```
 
-### 2단계: HTTPS 설정 적용
+6. Amazon Linux 2023은 갱신 타이머가 기본으로 켜져 있지 않으므로 직접 활성화하고 갱신을 확인합니다.
 
-```bash
-sudo install -m 644 infra/nginx/conf.d/tripcast-web.conf /etc/nginx/conf.d/tripcast-web.conf
-sudo rm -f /etc/nginx/default.d/tripcast-web.conf
-sudo nginx -t && sudo systemctl reload nginx
-```
-
-`default.d`의 기존 설정을 지우면 IP 주소로 직접 접속하는 요청은 더 이상 앱으로 전달되지 않습니다. 접속과 `/healthz` 확인은 도메인으로 합니다.
-
-### 자동 갱신 확인
-
-```bash
-sudo systemctl enable --now certbot-renew.timer
-systemctl list-timers certbot-renew.timer
-sudo certbot renew --dry-run
-```
-
-`certbot-renew.timer`가 없으면 `certbot` 패키지의 systemd 유닛 이름을 `systemctl list-unit-files | grep certbot`로 확인합니다. `dry-run`은 80 포트의 `/.well-known/acme-challenge/`가 외부에서 접근 가능해야 성공합니다.
+   ```bash
+   sudo systemctl enable --now certbot-renew.timer
+   systemctl list-timers certbot-renew.timer
+   sudo certbot renew --dry-run
+   ```
 
 ### 접속 확인
 
 ```bash
 curl -I https://tripcastwith.duckdns.org/
 curl -I http://tripcastwith.duckdns.org/
-curl -i http://tripcastwith.duckdns.org/healthz
 curl -i https://tripcastwith.duckdns.org/healthz
 ```
 
-- `https://` 요청은 `200`이고 `Strict-Transport-Security: max-age=300` 헤더가 있어야 합니다.
+- `https://` 요청은 `200`이어야 합니다.
 - `http://` 요청은 `301`로 `https://tripcastwith.duckdns.org/`를 가리켜야 합니다.
-- `http://…/healthz`와 `https://…/healthz`는 모두 `200 ok`여야 합니다.
+- `--redirect`는 80의 모든 요청을 리다이렉트하므로 `http://…/healthz`도 `301`입니다. 헬스체크는 `https://…/healthz`나 EC2 내부의 `http://127.0.0.1:3000/healthz`로 합니다.
 
-### HSTS 기간 조정
+### 선택 사항: HSTS
 
-HSTS는 브라우저가 기간 동안 HTTP 접속을 막으므로 처음에는 `max-age=300`(5분)으로 둡니다. HTTPS와 자동 갱신이 안정적인 것을 확인한 뒤 [tripcast-web.conf](../infra/nginx/conf.d/tripcast-web.conf)의 값을 `86400`(1일), `31536000`(1년) 순으로 PR을 통해 늘립니다. `duckdns.org`는 공용 도메인이므로 `includeSubDomains`와 `preload`는 사용하지 않습니다.
+HSTS는 현재 적용하지 않았습니다. 적용하려면 `nginx.conf`의 443 server 블록에 다음 줄을 추가하고 `sudo nginx -t && sudo systemctl reload nginx`를 실행합니다.
+
+```nginx
+add_header Strict-Transport-Security "max-age=300" always;
+```
+
+브라우저가 기간 동안 HTTP 접속을 막으므로 처음에는 5분(`300`)으로 두고, HTTPS와 자동 갱신이 안정적인 것을 확인한 뒤 1일(`86400`), 1년(`31536000`) 순으로 늘립니다. `duckdns.org`는 공용 도메인이므로 `includeSubDomains`와 `preload`는 사용하지 않습니다. `certbot --hsts` 옵션은 처음부터 1년 값을 설정하므로 쓰지 않습니다.
 
 ### 롤백
 
-HTTPS에 문제가 있으면 80 전용 설정으로 되돌립니다. HSTS가 짧아 브라우저 캐시는 최대 5분 안에 풀립니다.
+HTTPS에 문제가 있으면 certbot이 수정하기 전의 `nginx.conf`로 되돌립니다. 이 경우 `server_name`도 원래 값(`_`)으로 돌아가며 HTTP로만 서비스됩니다.
 
 ```bash
-sudo install -m 644 infra/nginx/conf.d/tripcast-web.http.conf /etc/nginx/conf.d/tripcast-web.conf
+sudo cp /etc/nginx/nginx.conf.bak /etc/nginx/nginx.conf
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-인증서 발급 자체가 실패해도 1단계 설정만 유지하면 HTTP로 계속 서비스됩니다. IP 주소 접속까지 복구하려면 `default.d`에 `proxy_pass http://127.0.0.1:3000;`을 전달하는 `location /` 설정을 다시 설치해야 합니다.
+HSTS를 적용했다면 브라우저가 설정한 기간 동안 HTTP 접속이 막힐 수 있습니다. 인증서까지 제거하려면 `sudo certbot delete --cert-name tripcastwith.duckdns.org`를 실행합니다.
 
 ## 백엔드 연결
 
