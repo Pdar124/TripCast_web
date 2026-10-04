@@ -4,8 +4,8 @@ TripCast의 관광지·관광코스 날씨 및 관광기후지수 웹 서비스 
 
 ## 관련 저장소
 
-- 프론트엔드: [TripCast-web](https://github.com/Pdar124/TripCast-web)
-- 백엔드: [TripCast-was](https://github.com/Pdar124/TripCast-was)
+- 프론트엔드: [TripCast-web](https://github.com/Trip-Cast/TripCast-web)
+- 백엔드: [TripCast-was](https://github.com/Trip-Cast/TripCast-was)
 
 ## 문서
 
