@@ -4,3 +4,4 @@ node_modules
 playwright-report
 test-results
 src/types/api.ts
+public/assets/js/hero3d.js
