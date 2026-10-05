@@ -26,7 +26,7 @@ npm run dev
 
 npm은 10 이상을 사용합니다. `npm ci`는 저장된 `package-lock.json`을 기준으로 설치합니다. 기존 `node_modules`가 있다면 잠금 파일에 맞게 다시 설치합니다. 의존성을 추가·변경할 때는 `npm install`을 사용하고 `package.json`과 `package-lock.json`을 함께 관리합니다.
 
-Windows PowerShell의 환경 파일 복사 명령은 `Copy-Item .env.example .env`입니다. 이미 `.env`를 설정했다면 덮어쓰지 말고 필요한 변수만 확인합니다. `VITE_API_BASE_URL`의 기본값은 `http://localhost:8080`이며, 카카오맵 키는 지도 기능 구현 시 설정합니다.
+Windows PowerShell의 환경 파일 복사 명령은 `Copy-Item .env.example .env`입니다. 이미 `.env`를 설정했다면 덮어쓰지 말고 필요한 변수만 확인합니다. `VITE_API_BASE_URL`의 기본값은 `http://localhost:8080`이며, 카카오맵 키는 선택 사항이며, 비워 두면 지도 대신 플레이스홀더가 표시됩니다. 키 발급과 허용 도메인 등록은 README의 환경 변수 항목을 따릅니다.
 
 ## 검사와 커밋 훅
 
@@ -82,14 +82,14 @@ npm run build
 
 ## E2E와 API 타입의 현재 범위
 
-Playwright는 Chromium 한 종류와 홈 화면 스모크 테스트를 준비한 상태입니다. 이번 환경 정리에는 브라우저 설치와 실제 E2E 실행을 포함하지 않았습니다. 테스트 브라우저가 없으면 먼저 설치합니다.
+Playwright는 Chromium 한 종류로 실행하며, `page.route`로 `/api/**`를 mock하므로 백엔드가 필요 없습니다(공통 헬퍼: `e2e/support/mock-api.ts`, 응답 데이터: `e2e/support/fixtures.ts`). 테스트 브라우저가 없으면 먼저 설치합니다.
 
 ```bash
 npx playwright install chromium
 npm run test:e2e
 ```
 
-E2E 실행 시 설정된 Vite 개발 서버를 사용합니다. 테스트 파일 인식이나 TypeScript 검사 성공만으로 브라우저 테스트가 통과했다고 판단하지 않습니다.
+E2E 실행 시 설정된 Vite 개발 서버를 사용하며, 지도 검증이 플레이스홀더 기준이 되도록 `VITE_KAKAO_MAP_APP_KEY`를 빈 값으로 덮어씁니다(이미 5173 포트에서 개발 서버가 실행 중이면 그 서버를 재사용하므로, 키가 설정된 서버라면 종료한 뒤 실행합니다). 테스트 파일 인식이나 TypeScript 검사 성공만으로 브라우저 테스트가 통과했다고 판단하지 않습니다.
 
 `src/types/api.ts`는 현재 빈 placeholder입니다. API 타입 동기화는 로컬 백엔드의 `/v3/api-docs`가 준비된 뒤 수행합니다.
 

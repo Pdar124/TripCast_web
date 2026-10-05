@@ -1,8 +1,8 @@
 import { ArrowRight, ChartNoAxesCombined, Compass, Route, Search } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
+import { HeroBackground } from '@/features/home/components/hero-background';
 import { useCourseRecommendations } from '@/features/courses/hooks/use-course-recommendations';
 import type { CourseRecommendation } from '@/features/courses/types';
 import { ClimateBadge } from '@/shared/components/climate-badge';
@@ -69,30 +69,14 @@ function HomeRecommendationCard({ course }: { course: CourseRecommendation }) {
 
 export function HomePage() {
   const recommendationsQuery = useCourseRecommendations(3);
-  const heroRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const mountTimer = window.setTimeout(() => window.TripCastHero?.mount(heroRef.current), 0);
-    return () => {
-      window.clearTimeout(mountTimer);
-      window.TripCastHero?.unmount();
-    };
-  }, []);
 
   return (
     <main>
       <section
         className="tc-hero relative h-screen min-h-[640px] overflow-hidden bg-[var(--hero-bg)]"
         id="hero"
-        ref={heroRef}
       >
-        <img
-          alt=""
-          className="tc-hero-still"
-          height="1440"
-          src="/assets/img/hero-terrain.jpg"
-          width="1920"
-        />
+        <HeroBackground />
         <div className="absolute inset-0 z-[1] bg-[var(--tc-hero-scrim)]" aria-hidden="true" />
         <div className="container relative z-10 flex h-full max-w-[720px] flex-col justify-center text-[var(--tc-hero-foreground)]">
           <div>

@@ -59,8 +59,12 @@ export function AppLayout() {
       </a>
 
       <header className="sticky top-0 z-40 border-b border-black/10 bg-[var(--tc-topbar)] backdrop-blur-2xl dark:border-white/10">
-        <div className="container flex min-h-16 flex-wrap items-center gap-2 py-2 sm:gap-6 sm:py-0">
-          <Link className="flex shrink-0 items-center gap-2" to="/" aria-label="TripCast 홈">
+        <div className="container flex min-h-16 flex-wrap items-center gap-2 py-2 sm:gap-3 sm:py-0 lg:gap-6">
+          <Link
+            className="flex min-h-11 shrink-0 items-center gap-2"
+            to="/"
+            aria-label="TripCast 홈"
+          >
             <BrandMark />
             <span className="text-lg font-bold tracking-[-0.2px]">TripCast</span>
           </Link>
@@ -73,7 +77,7 @@ export function AppLayout() {
               <NavLink
                 className={({ isActive }) =>
                   cn(
-                    'inline-flex h-9 shrink-0 items-center rounded-full px-4 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground',
+                    'inline-flex h-11 shrink-0 items-center rounded-full px-3 text-sm text-muted-foreground sm:h-9 lg:px-4 transition-colors hover:bg-secondary hover:text-foreground',
                     isActive && 'bg-secondary font-bold text-foreground',
                   )
                 }
@@ -99,10 +103,17 @@ export function AppLayout() {
             )}
           </button>
           <Link
-            className="inline-flex h-9 shrink-0 items-center justify-center rounded-full border border-black/15 px-4 text-sm font-bold transition-colors hover:bg-secondary dark:border-white/15"
+            className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-black/15 sm:h-9 px-4 text-sm font-bold transition-colors hover:bg-secondary dark:border-white/15"
+            aria-label={token ? '관리자 대시보드' : undefined}
             to={token ? '/admin' : '/admin/login'}
           >
-            {token ? '관리자 대시보드' : '관리자'}
+            {token ? (
+              <>
+                관리자<span className="hidden lg:inline">&nbsp;대시보드</span>
+              </>
+            ) : (
+              '관리자'
+            )}
           </Link>
         </div>
       </header>
@@ -124,16 +135,22 @@ export function AppLayout() {
           </div>
           <nav aria-label="전체 페이지">
             <p className="mb-3 font-bold text-foreground">전체 페이지</p>
-            <ul className="grid grid-cols-2 gap-x-6 gap-y-1.5 sm:grid-cols-3 md:grid-cols-1">
+            <ul className="grid grid-cols-2 gap-x-6 sm:grid-cols-3 md:grid-cols-1">
               {navigation.map((item) => (
                 <li key={item.to}>
-                  <Link className="hover:text-foreground hover:underline" to={item.to}>
+                  <Link
+                    className="inline-block py-3 hover:text-foreground hover:underline md:py-1"
+                    to={item.to}
+                  >
                     {item.label}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link className="hover:text-foreground hover:underline" to="/admin/login">
+                <Link
+                  className="inline-block py-3 hover:text-foreground hover:underline md:py-1"
+                  to="/admin/login"
+                >
                   관리자 로그인
                 </Link>
               </li>

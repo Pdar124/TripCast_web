@@ -42,7 +42,7 @@ export function CourseStopItem({ stopWeather }: CourseStopItemProps) {
               <p className="text-sm font-semibold text-primary">{spot.themeName}</p>
               <h3 className="mt-2 text-xl font-bold tracking-tight">
                 <Link
-                  className="hover:text-primary hover:underline"
+                  className="inline-flex min-h-11 items-center hover:text-primary hover:underline sm:min-h-0"
                   to={`/spots/${spot.tourSpotId}`}
                 >
                   {spot.tourSpotName}

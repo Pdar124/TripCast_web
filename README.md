@@ -4,8 +4,8 @@ TripCast의 관광지·관광코스 날씨 및 관광기후지수 웹 서비스 
 
 ## 관련 저장소
 
-- 프론트엔드: [TripCast-web](https://github.com/Pdar124/TripCast-web)
-- 백엔드: [TripCast-was](https://github.com/Pdar124/TripCast-was)
+- 프론트엔드: [TripCast-web](https://github.com/Trip-Cast/TripCast-web)
+- 백엔드: [TripCast-was](https://github.com/Trip-Cast/TripCast-was)
 
 ## 문서
 
@@ -39,6 +39,8 @@ Windows PowerShell에서는 `cp .env.example .env` 대신 `Copy-Item .env.exampl
 | `VITE_API_BASE_URL`      | TripCast 백엔드 API 주소  | `http://localhost:8080` |
 | `VITE_KAKAO_MAP_APP_KEY` | 카카오맵 JavaScript 앱 키 | 없음                    |
 
+`VITE_KAKAO_MAP_APP_KEY`가 비어 있으면 지도 대신 안내용 플레이스홀더를 보여 줍니다. 키는 [카카오 개발자 콘솔](https://developers.kakao.com)에서 애플리케이션을 만들고 **플랫폼 > Web**에 사이트 도메인(예: `http://localhost:5173`, 운영 도메인)을 등록한 뒤 **JavaScript 키**를 `.env`에 설정합니다. 등록하지 않은 도메인에서는 지도가 표시되지 않으며, 키는 저장소에 커밋하지 않습니다.
+
 ### 주요 명령어
 
 | 명령어                 | 설명                                               |
@@ -53,7 +55,7 @@ Windows PowerShell에서는 `cp .env.example .env` 대신 `Copy-Item .env.exampl
 | `npm run test:e2e`     | Playwright E2E 테스트 실행                         |
 | `npm run generate:api` | 로컬 백엔드 OpenAPI 명세로 `src/types/api.ts` 생성 |
 
-Playwright 설정과 홈 스모크 테스트는 준비되어 있습니다. 처음 실행할 때는 `npx playwright install chromium`으로 브라우저를 설치한 뒤 `npm run test:e2e`를 실행합니다.
+Playwright E2E는 `page.route`로 `/api/**`를 mock하므로 백엔드 없이 실행됩니다. 핵심 흐름(홈, 관광지 검색→상세, 코스 목록→상세, 추천 코스, 관광기후지수, 관리자 로그인→보호 라우트)과 모바일·태블릿·데스크톱 가로 스크롤 검사를 포함합니다. 지도는 카카오맵 키가 없는 플레이스홀더 상태를 기준으로 하며, 테스트 실행 시 로컬 `.env`의 키는 무시됩니다. 처음 실행할 때는 `npx playwright install chromium`으로 브라우저를 설치한 뒤 `npm run test:e2e`를 실행합니다.
 
 `npm run generate:api`는 로컬 백엔드가 실행 중일 때 사용합니다. 현재 `src/types/api.ts`는 운영 백엔드 OpenAPI 명세와 동기화되어 있습니다.
 
@@ -65,10 +67,10 @@ Playwright 설정과 홈 스모크 테스트는 준비되어 있습니다. 처�
 | ----- | ---- | ------------------------------------------------------------------------ |
 | 0     | 완료 | Vite, Tailwind CSS, shadcn/ui, ESLint, Prettier, openapi-typescript 셋업 |
 | 1     | 완료 | 관광지 검색·상세 및 날씨                                                 |
-| 2     | 완료 | 코스 목록·상세·추천 및 관광기후지수 차트                                 |
+| 2     | 완료 | 코스 목록·상세·추천, 관광기후지수 조회·기간 추이 차트                    |
 | 3     | 완료 | 관리자 로그인·라우트 보호·수동 동기화 대시보드                           |
-| 4     | 예정 | 홈 3D 히어로 섹션                                                        |
-| 5     | 예정 | 지도, E2E 테스트, 반응형 UI 다듬기                                       |
+| 4     | 완료 | React Three Fiber 기반 홈 3D 히어로 섹션                                 |
+| 5     | 완료 | 카카오맵, Playwright E2E 테스트, 반응형 UI 다듬기                        |
 
 ## 핵심 원칙
 
