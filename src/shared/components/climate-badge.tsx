@@ -8,13 +8,18 @@ type ClimateBadgeProps = {
   size?: 'default' | 'large';
 };
 
-function climateColor(score: number | null) {
-  if (score == null) return 'var(--tc-climate-normal)';
-  if (score >= 90) return 'var(--tc-climate-excellent)';
-  if (score >= 70) return 'var(--tc-climate-good)';
-  if (score >= 50) return 'var(--tc-climate-normal)';
-  if (score >= 30) return 'var(--tc-climate-caution)';
-  return 'var(--tc-climate-bad)';
+function climateColor(grade: string) {
+  const normalizedGrade = grade.replaceAll(' ', '');
+  if (normalizedGrade === '매우좋음') return 'var(--tc-climate-excellent)';
+  if (normalizedGrade === '좋음') return 'var(--tc-climate-good)';
+  if (normalizedGrade === '보통') return 'var(--tc-climate-normal)';
+  if (normalizedGrade === '나쁨') return 'var(--tc-climate-caution)';
+  if (normalizedGrade === '매우나쁨') return 'var(--tc-climate-bad)';
+  return 'var(--tc-climate-normal)';
+}
+
+function formatScore(score: number) {
+  return new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(score);
 }
 
 export function ClimateBadge({ climateIndex, size = 'default' }: ClimateBadgeProps) {
@@ -41,7 +46,7 @@ export function ClimateBadge({ climateIndex, size = 'default' }: ClimateBadgePro
   ]);
   const rawGrade = climateIndex.grade?.trim() ?? '';
   const grade = knownGrades.has(rawGrade) ? rawGrade : '정보 없음';
-  const style = { '--climate-color': climateColor(score) } as CSSProperties;
+  const style = { '--climate-color': climateColor(grade) } as CSSProperties;
 
   return (
     <span
@@ -54,7 +59,9 @@ export function ClimateBadge({ climateIndex, size = 'default' }: ClimateBadgePro
     >
       <span className="h-2 w-2 rounded-full bg-[var(--climate-color)]" aria-hidden="true" />
       {score != null && (
-        <span className={size === 'large' ? 'text-[22px]' : 'text-[15px]'}>{score}점</span>
+        <span className={size === 'large' ? 'text-[22px]' : 'text-[15px]'}>
+          지수 {formatScore(score)}
+        </span>
       )}
       <span className="opacity-90">{grade}</span>
     </span>

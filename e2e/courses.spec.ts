@@ -71,7 +71,7 @@ test('추천 코스를 개수별로 보고 코스 상세로 이동한다', async
 
   const items = page.getByRole('listitem').filter({ hasText: '에서 시작하는 코스' });
   await expect(items.first()).toContainText('성산일출봉');
-  await expect(items.first()).toContainText('93점');
+  await expect(items.first()).toContainText('지수 93');
   await expect(items.nth(1)).toContainText('경복궁');
 
   await page.getByRole('button', { name: '10개' }).click();

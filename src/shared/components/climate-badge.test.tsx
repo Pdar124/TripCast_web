@@ -13,8 +13,15 @@ describe('ClimateBadge', () => {
   it('알 수 없는 grade는 안전한 fallback으로 표시한다', () => {
     render(<ClimateBadge climateIndex={{ grade: 'NEW_GRADE', score: 77 }} />);
 
-    expect(screen.getByText('77점')).toBeInTheDocument();
+    expect(screen.getByText('지수 77')).toBeInTheDocument();
     expect(screen.getByText('정보 없음')).toBeInTheDocument();
     expect(screen.queryByText('NEW_GRADE')).not.toBeInTheDocument();
+  });
+
+  it('원문 소수 점수와 등급을 함께 표시한다', () => {
+    render(<ClimateBadge climateIndex={{ grade: '좋음', score: 0.11 }} />);
+
+    expect(screen.getByText('지수 0.11')).toBeInTheDocument();
+    expect(screen.getByText('좋음')).toBeInTheDocument();
   });
 });

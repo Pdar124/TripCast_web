@@ -1,4 +1,4 @@
-import { type FormEvent } from 'react';
+import { type FormEvent, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import {
@@ -13,17 +13,24 @@ import { Button } from '@/shared/components/ui/button';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
 const regions = [
-  ['50130', '서귀포시'],
-  ['50110', '제주시'],
-  ['47130', '경주시'],
-  ['26350', '해운대구'],
-  ['26500', '수영구'],
-  ['26380', '사하구'],
-  ['26200', '영도구'],
-  ['42150', '강릉시'],
-  ['11110', '종로구'],
-  ['45111', '완산구'],
+  ['5013000000', '서귀포시'],
+  ['5011000000', '제주시'],
+  ['4713000000', '경주시'],
+  ['2635000000', '해운대구'],
+  ['2650000000', '수영구'],
+  ['2638000000', '사하구'],
+  ['2620000000', '영도구'],
+  ['4215000000', '강릉시'],
+  ['1111000000', '종로구'],
+  ['4511100000', '완산구'],
 ] as const;
+
+const REGION_ID_PATTERN = /^\d{10}$/;
+
+function normalizeRegionId(value: string) {
+  const trimmed = value.trim();
+  return /^\d{5}$/.test(trimmed) ? `${trimmed}00000` : trimmed;
+}
 
 function isoDate(date: Date) {
   const year = date.getFullYear();
@@ -33,10 +40,20 @@ function isoDate(date: Date) {
 }
 
 function ClimateChart({ series }: { series: ClimateIndex[] }) {
+  const scores = series.map((item) => item.score);
+  const minimum = Math.min(...scores);
+  const maximum = Math.max(...scores);
+  const padding =
+    minimum === maximum ? Math.max(Math.abs(maximum) * 0.15, 0.1) : (maximum - minimum) * 0.15;
+  const domainMinimum = minimum - padding;
+  const domainMaximum = maximum + padding;
+  const domainSize = domainMaximum - domainMinimum;
+  const chartY = (score: number) => 90 - ((score - domainMinimum) / domainSize) * 80;
+  const gridLines = Array.from({ length: 5 }, (_, index) => 10 + index * 20);
   const points = series
     .map((item, index) => {
       const x = series.length === 1 ? 50 : (index / (series.length - 1)) * 100;
-      return `${x},${100 - Math.max(0, Math.min(100, item.score))}`;
+      return `${x},${chartY(item.score)}`;
     })
     .join(' ');
 
@@ -49,7 +66,9 @@ function ClimateChart({ series }: { series: ClimateIndex[] }) {
             {series[0]?.date} – {series.at(-1)?.date} · {series.length}일
           </p>
         </div>
-        <span className="tc-tag">0–100 관광기후지수</span>
+        <span className="tc-tag">
+          원문 지수 {minimum.toFixed(2)}–{maximum.toFixed(2)}
+        </span>
       </div>
       <svg
         className="h-[340px] w-full overflow-visible"
@@ -58,13 +77,13 @@ function ClimateChart({ series }: { series: ClimateIndex[] }) {
         preserveAspectRatio="none"
         aria-label="기간별 관광기후지수 추이 그래프"
       >
-        {[0, 25, 50, 75, 100].map((value) => (
+        {gridLines.map((y) => (
           <line
-            key={value}
+            key={y}
             x1="0"
             x2="100"
-            y1={100 - value}
-            y2={100 - value}
+            y1={y}
+            y2={y}
             stroke="var(--tc-grid-line)"
             strokeWidth="0.5"
           />
@@ -84,11 +103,13 @@ function ClimateChart({ series }: { series: ClimateIndex[] }) {
             <circle
               key={`${item.date}-${index}`}
               cx={x}
-              cy={100 - item.score}
+              cy={chartY(item.score)}
               fill="var(--tc-accent)"
               r="1.25"
               vectorEffect="non-scaling-stroke"
-            />
+            >
+              <title>{`${item.date} · 지수 ${item.score} · ${item.grade}`}</title>
+            </circle>
           );
         })}
       </svg>
@@ -117,22 +138,41 @@ function ClimateChart({ series }: { series: ClimateIndex[] }) {
 
 export function ClimatePage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [formError, setFormError] = useState<string | null>(null);
   const today = new Date();
   const twoWeeksAgo = new Date(today);
   twoWeeksAgo.setDate(today.getDate() - 13);
-  const regionId = searchParams.get('region') || '50130';
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const requestedRegionId = normalizeRegionId(searchParams.get('region') || '5013000000');
+  const regionId = REGION_ID_PATTERN.test(requestedRegionId) ? requestedRegionId : '5013000000';
   const from = searchParams.get('from') || isoDate(twoWeeksAgo);
-  const to = searchParams.get('to') || isoDate(today);
+  const to = searchParams.get('to') || isoDate(tomorrow);
   const latestQuery = useLatestClimateIndex(regionId);
   const rangeQuery = useClimateIndexRange(regionId, from, to);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const nextRegionId = normalizeRegionId(String(form.get('region') ?? ''));
+    const nextFrom = String(form.get('from') ?? '');
+    const nextTo = String(form.get('to') ?? '');
+
+    if (!REGION_ID_PATTERN.test(nextRegionId)) {
+      setFormError('시군구 코드는 숫자 10자리로 입력해 주세요.');
+      return;
+    }
+
+    if (!nextFrom || !nextTo || nextFrom > nextTo) {
+      setFormError('조회 시작일과 종료일을 올바르게 입력해 주세요.');
+      return;
+    }
+
+    setFormError(null);
     setSearchParams({
-      region: String(form.get('region') ?? '').trim(),
-      from: String(form.get('from') ?? ''),
-      to: String(form.get('to') ?? ''),
+      region: nextRegionId,
+      from: nextFrom,
+      to: nextTo,
     });
   }
 
@@ -146,13 +186,14 @@ export function ClimatePage() {
         <p className="tc-eyebrow">CLIMATE INDEX</p>
         <h1 className="tc-page-title mt-3">관광기후지수</h1>
         <p className="tc-page-desc">
-          시군구 코드로 최신 지수와 기간 추이를 확인합니다. 지수는 더위·추위·체감 쾌적도를 0~100으로
-          환산한 값입니다.
+          시군구 코드로 최신 지수와 기간 추이를 확인합니다. 외부 관광기후지수의 원문 점수와 쾌적도
+          등급을 함께 보여줍니다.
         </p>
       </header>
 
       <form
         className="grid gap-4 rounded-lg bg-card p-5 md:grid-cols-[minmax(0,1fr)_180px_180px_auto] md:items-end"
+        key={`${regionId}-${from}-${to}`}
         onSubmit={submit}
       >
         <label className="grid gap-2 text-xs font-bold">
@@ -163,6 +204,8 @@ export function ClimatePage() {
             list="region-codes"
             name="region"
             inputMode="numeric"
+            maxLength={10}
+            minLength={10}
           />
         </label>
         <datalist id="region-codes">
@@ -193,6 +236,11 @@ export function ClimatePage() {
         <Button className="h-12" type="submit">
           조회
         </Button>
+        {formError && (
+          <p className="text-sm font-medium text-destructive md:col-span-4" role="alert">
+            {formError}
+          </p>
+        )}
       </form>
 
       <div className="my-8 flex flex-wrap gap-2">

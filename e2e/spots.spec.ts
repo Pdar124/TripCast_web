@@ -32,7 +32,7 @@ test('관광지를 검색해 상세 페이지로 이동한다', async ({ page })
 
   await expect(page).toHaveURL(/\/spots\/1$/);
   await expect(page.getByRole('heading', { level: 1, name: '경복궁' })).toBeVisible();
-  await expect(page.getByText('82점')).toBeVisible();
+  await expect(page.getByText('지수 82')).toBeVisible();
   await expect(page.getByText('21°')).toBeVisible();
   // 카카오맵 앱 키가 없는 환경에서는 플레이스홀더를 보여 준다.
   await expect(page.getByRole('heading', { name: '지도 영역' })).toBeVisible();
