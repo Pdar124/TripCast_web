@@ -40,12 +40,11 @@
     --tc-overlay: rgba(255, 255, 255, 0.88);
     --tc-grid-line: rgba(18, 18, 18, 0.1);
     --tc-track: rgba(18, 18, 18, 0.1);
-    --tc-hero-scrim: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0.42) 42%,
-      rgba(255, 255, 255, 0.96) 100%
-    );
+    --tc-hero-foreground: #ffffff;
+    --tc-hero-muted: rgba(255, 255, 255, 0.82);
+    --tc-hero-scrim:
+      linear-gradient(90deg, rgba(7, 15, 11, 0.82) 0%, rgba(7, 15, 11, 0.52) 46%, transparent 78%),
+      linear-gradient(180deg, rgba(7, 15, 11, 0.2) 0%, transparent 52%, rgba(7, 15, 11, 0.58) 100%);
     --hero-bg: #e4eaf0;
     --hero-fog: #dfe6ed;
     --hero-terrain: #9aa6b4;
@@ -96,6 +95,8 @@
     --tc-overlay: rgba(18, 18, 18, 0.82);
     --tc-grid-line: rgba(255, 255, 255, 0.08);
     --tc-track: rgba(255, 255, 255, 0.12);
+    --tc-hero-foreground: #ffffff;
+    --tc-hero-muted: rgba(255, 255, 255, 0.76);
     --tc-hero-scrim: linear-gradient(
       180deg,
       rgba(18, 18, 18, 0.72) 0%,
