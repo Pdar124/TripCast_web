@@ -78,15 +78,15 @@ export function HomePage() {
       >
         <HeroBackground />
         <div className="absolute inset-0 z-[1] bg-[var(--tc-hero-scrim)]" aria-hidden="true" />
-        <div className="container relative z-10 flex h-full max-w-[720px] flex-col justify-center">
+        <div className="container relative z-10 flex h-full max-w-[720px] flex-col justify-center text-[var(--tc-hero-foreground)]">
           <div>
-            <p className="tc-eyebrow">관광코스 날씨 통합 서비스</p>
-            <h1 className="mt-4 text-[64px] font-bold leading-[1.02] tracking-[-1.5px]">
+            <p className="tc-eyebrow text-[var(--tc-hero-muted)]">관광코스 날씨 통합 서비스</p>
+            <h1 className="mt-4 text-[64px] font-bold leading-[1.02] tracking-[-1.5px] [text-shadow:0_2px_24px_rgba(0,0,0,0.45)]">
               오늘,
               <br />
               어디로 떠날까
             </h1>
-            <p className="mt-5 max-w-[34em] break-keep text-lg leading-8 text-[var(--tc-meta)] sm:text-xl">
+            <p className="mt-5 max-w-[34em] break-keep text-lg leading-8 text-[var(--tc-hero-muted)] sm:text-xl">
               기상청 단기예보와 관광기후지수를 코스 단위로 묶어 보여줍니다. 지금 가장 쾌적한
               여행길을 1초 만에 고르세요.
             </p>
@@ -100,7 +100,7 @@ export function HomePage() {
             </div>
           </div>
         </div>
-        <p className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap text-xs uppercase tracking-[0.09em] text-muted-foreground">
+        <p className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap text-xs uppercase tracking-[0.09em] text-[var(--tc-hero-muted)]">
           <Compass className="h-4 w-4" aria-hidden="true" /> 스크롤해서 더 보기
         </p>
       </section>
