@@ -186,11 +186,11 @@
 
 **목적**: 특정 지역의 최신 지수 + 기간별 추이 확인
 
-**사용 API**: `GET /api/regions/{regionId}/climate-index`, `GET /api/regions/{regionId}/climate-index/range?from=&to=`
+**사용 API**: `GET /api/regions`, `GET /api/regions/{regionId}/climate-index`, `GET /api/regions/{regionId}/climate-index/range?from=&to=`
 
 **화면 구성**
 
-- 시군구 코드 입력창(백엔드 정규화 기준 숫자 10자리) + 기간(시작일/종료일) + 조회 버튼
+- 지역 이름 검색 콤보박스(값은 시군구 코드 10자리, 목록 API 실패 시 코드 직접 입력) + 기간(시작일/종료일) + 조회 버튼
 - 최신 지수 배지(외부 API 원문 소수 점수 + 등급, 색상은 등급 기준)
 - 기간별 추이 꺾은선 그래프(데이터 범위에 맞춘 Y축, 툴팁에 날짜·점수·등급 표시)
 

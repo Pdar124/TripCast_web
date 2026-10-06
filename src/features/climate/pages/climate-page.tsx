@@ -1,9 +1,11 @@
 import { type FormEvent, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { RegionCombobox } from '@/features/climate/components/region-combobox';
 import {
   useClimateIndexRange,
   useLatestClimateIndex,
+  useRegions,
 } from '@/features/climate/hooks/use-climate-index';
 import type { ClimateIndex } from '@/features/climate/types';
 import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
@@ -11,19 +13,6 @@ import { ClimateBadge } from '@/shared/components/climate-badge';
 import { EmptyState } from '@/shared/components/empty-state';
 import { Button } from '@/shared/components/ui/button';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-
-const regions = [
-  ['5013000000', '서귀포시'],
-  ['5011000000', '제주시'],
-  ['4713000000', '경주시'],
-  ['2635000000', '해운대구'],
-  ['2650000000', '수영구'],
-  ['2638000000', '사하구'],
-  ['2620000000', '영도구'],
-  ['4215000000', '강릉시'],
-  ['1111000000', '종로구'],
-  ['4511100000', '완산구'],
-] as const;
 
 const REGION_ID_PATTERN = /^\d{10}$/;
 
@@ -150,6 +139,7 @@ export function ClimatePage() {
   const to = searchParams.get('to') || isoDate(tomorrow);
   const latestQuery = useLatestClimateIndex(regionId);
   const rangeQuery = useClimateIndexRange(regionId, from, to);
+  const regionsQuery = useRegions();
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -157,6 +147,11 @@ export function ClimatePage() {
     const nextRegionId = normalizeRegionId(String(form.get('region') ?? ''));
     const nextFrom = String(form.get('from') ?? '');
     const nextTo = String(form.get('to') ?? '');
+
+    if (regionsQuery.isSuccess && !nextRegionId) {
+      setFormError('검색 결과에서 지역을 선택해 주세요.');
+      return;
+    }
 
     if (!REGION_ID_PATTERN.test(nextRegionId)) {
       setFormError('시군구 코드는 숫자 10자리로 입력해 주세요.');
@@ -176,17 +171,13 @@ export function ClimatePage() {
     });
   }
 
-  function selectRegion(region: string) {
-    setSearchParams({ region, from, to });
-  }
-
   return (
     <main className="tc-page">
       <header className="tc-page-head max-w-2xl">
         <p className="tc-eyebrow">CLIMATE INDEX</p>
         <h1 className="tc-page-title mt-3">관광기후지수</h1>
         <p className="tc-page-desc">
-          시군구 코드로 최신 지수와 기간 추이를 확인합니다. 외부 관광기후지수의 원문 점수와 쾌적도
+          지역을 검색해 최신 지수와 기간 추이를 확인합니다. 외부 관광기후지수의 원문 점수와 쾌적도
           등급을 함께 보여줍니다.
         </p>
       </header>
@@ -196,25 +187,26 @@ export function ClimatePage() {
         key={`${regionId}-${from}-${to}`}
         onSubmit={submit}
       >
-        <label className="grid gap-2 text-xs font-bold">
-          시군구 코드
-          <input
-            className="h-12 rounded-md border border-transparent bg-secondary px-4 text-sm"
-            defaultValue={regionId}
-            list="region-codes"
-            name="region"
-            inputMode="numeric"
-            maxLength={10}
-            minLength={10}
-          />
-        </label>
-        <datalist id="region-codes">
-          {regions.map(([id, name]) => (
-            <option key={id} value={id}>
-              {name}
-            </option>
-          ))}
-        </datalist>
+        {regionsQuery.isPending ? (
+          <div className="grid gap-2 text-xs font-bold">
+            지역
+            <Skeleton className="h-12 rounded-md" />
+          </div>
+        ) : regionsQuery.isError ? (
+          <label className="grid gap-2 text-xs font-bold">
+            시군구 코드
+            <input
+              className="h-12 rounded-md border border-transparent bg-secondary px-4 text-sm"
+              defaultValue={regionId}
+              inputMode="numeric"
+              maxLength={10}
+              minLength={10}
+              name="region"
+            />
+          </label>
+        ) : (
+          <RegionCombobox regionId={regionId} regions={regionsQuery.data} />
+        )}
         <label className="grid gap-2 text-xs font-bold">
           시작일
           <input
@@ -241,23 +233,14 @@ export function ClimatePage() {
             {formError}
           </p>
         )}
+        {regionsQuery.isError && !formError && (
+          <p className="text-sm font-medium text-muted-foreground md:col-span-4" role="status">
+            지역 목록을 불러오지 못했습니다. 시군구 코드 10자리를 직접 입력해 주세요.
+          </p>
+        )}
       </form>
 
-      <div className="my-8 flex flex-wrap gap-2">
-        {regions.map(([id, name]) => (
-          <button
-            aria-pressed={id === regionId}
-            className="rounded-full bg-secondary px-4 py-2 text-sm font-bold transition max-sm:min-h-11 hover:bg-[var(--tc-surface-hover)] aria-pressed:bg-primary"
-            key={id}
-            onClick={() => selectRegion(id)}
-            type="button"
-          >
-            {name}
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-8">
+      <div className="mt-8 space-y-8">
         {latestQuery.isPending ? (
           <Skeleton className="h-36 rounded-lg" />
         ) : latestQuery.isError ? (

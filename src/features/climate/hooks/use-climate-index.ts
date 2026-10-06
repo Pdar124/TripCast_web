@@ -1,8 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getClimateIndexRange, getLatestClimateIndex } from '@/features/climate/api/climate-api';
+import {
+  getClimateIndexRange,
+  getLatestClimateIndex,
+  getRegions,
+} from '@/features/climate/api/climate-api';
 
 const REGION_ID_PATTERN = /^\d{10}$/;
+
+export function useRegions() {
+  return useQuery({
+    queryFn: getRegions,
+    queryKey: ['regions'],
+    staleTime: 60 * 60 * 1000,
+  });
+}
 
 export function useLatestClimateIndex(regionId: string) {
   return useQuery({
