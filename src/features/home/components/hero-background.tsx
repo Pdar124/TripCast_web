@@ -1,7 +1,7 @@
 import { Component, lazy, Suspense, type ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 
-import { cn } from '@/shared/lib/utils';
+import { HeroScenePlaceholder } from '@/features/home/components/hero-scene-placeholder';
 
 const LazyHeroScene = lazy(() =>
   import('@/features/home/components/hero-scene').then(({ HeroScene }) => ({
@@ -14,6 +14,10 @@ class HeroErrorBoundary extends Component<{ children: ReactNode }, { failed: boo
 
   static getDerivedStateFromError() {
     return { failed: true };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error('3D 히어로를 렌더링하지 못해 정적 장면으로 대체합니다.', error);
   }
 
   render() {
@@ -45,22 +49,11 @@ export function HeroBackground() {
 
   return (
     <div className="absolute inset-0" aria-hidden="true">
-      <img
-        alt=""
-        className={cn(
-          'absolute inset-0 h-full w-full scale-[1.02] object-cover blur-[2px] transition-opacity duration-700',
-          ready && 'opacity-0',
-        )}
-        height="1440"
-        src="/assets/img/hero-terrain.jpg"
-        width="1920"
-      />
+      <HeroScenePlaceholder hidden={ready} />
       {supportsWebGL && (
         <div
-          className={cn(
-            'absolute inset-0 opacity-0 transition-opacity duration-700',
-            ready && 'opacity-100',
-          )}
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{ opacity: ready ? 1 : 0 }}
         >
           <HeroErrorBoundary>
             <Suspense fallback={null}>

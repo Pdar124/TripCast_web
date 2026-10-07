@@ -81,10 +81,10 @@ export function HomePage() {
         <div className="container relative z-10 flex h-full max-w-[720px] flex-col justify-center text-[var(--tc-hero-foreground)]">
           <div>
             <p className="tc-eyebrow text-[var(--tc-hero-muted)]">관광코스 날씨 통합 서비스</p>
-            <h1 className="mt-4 text-[64px] font-bold leading-[1.02] tracking-[-1.5px] [text-shadow:0_2px_24px_rgba(0,0,0,0.45)]">
+            <h1 className="mt-4 text-[52px] font-bold leading-[1.02] tracking-[-1.5px] [text-shadow:0_2px_24px_rgba(0,0,0,0.45)] sm:text-[64px]">
               오늘,
               <br />
-              어디로 떠날까
+              <span className="whitespace-nowrap">어디로 떠날까</span>
             </h1>
             <p className="mt-5 max-w-[34em] break-keep text-lg leading-8 text-[var(--tc-hero-muted)] sm:text-xl">
               기상청 단기예보와 관광기후지수를 코스 단위로 묶어 보여줍니다. 지금 가장 쾌적한
