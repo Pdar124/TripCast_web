@@ -52,7 +52,7 @@
     --hero-ridge: rgba(51, 61, 73, 1);
     --hero-key: #ffffff;
     --hero-ambient: #8a94a1;
-    --hero-route: #06692c;
+    --hero-route: #0b9b43;
     --tc-shadow-raised: rgba(18, 18, 18, 0.1) 0 6px 16px;
     --tc-shadow-hover: rgba(18, 18, 18, 0.16) 0 12px 24px;
     --tc-climate-excellent: #04642c;
@@ -241,30 +241,8 @@
       112px -12px 0 hsl(var(--foreground));
   }
 
-  .tc-hero-still {
-    @apply pointer-events-none absolute inset-0 z-0 h-full w-full object-cover;
-    filter: blur(18px) saturate(0.7) brightness(0.45);
-    transform: scale(1.08);
-    transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .hero-canvas {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .tc-hero.is-ready .hero-canvas {
-    opacity: 1;
-  }
-
-  .tc-hero.is-ready .tc-hero-still {
-    opacity: 0;
+  .hero-placeholder-sheen {
+    animation: hero-placeholder-sheen 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
 
   .tc-skeleton {
@@ -283,6 +261,16 @@
   }
 }
 
+@keyframes hero-placeholder-sheen {
+  0% {
+    transform: translateX(0);
+  }
+  70%,
+  100% {
+    transform: translateX(2200px);
+  }
+}
+
 @keyframes tc-skeleton-sweep {
   100% {
     transform: translateX(100%);
@@ -290,6 +278,10 @@
 }
 
 @media (max-width: 767px) {
+  .hero-placeholder-route {
+    transform: translateX(100px);
+  }
+
   .tc-page-head {
     @apply pb-5 pt-8;
   }
