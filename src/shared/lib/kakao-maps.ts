@@ -11,6 +11,8 @@ export type KakaoMap = {
     paddingLeft?: number,
   ) => void;
 };
+/** 상호작용 없이 지도 이미지만 그리는 정적 지도. */
+export type KakaoStaticMap = object;
 export type KakaoMarker = { setMap: (map: KakaoMap | null) => void };
 export type KakaoCustomOverlay = { setMap: (map: KakaoMap | null) => void };
 export type KakaoPolyline = { setMap: (map: KakaoMap | null) => void };
@@ -20,6 +22,10 @@ export type KakaoMapsApi = {
   LatLng: new (latitude: number, longitude: number) => KakaoLatLng;
   LatLngBounds: new () => KakaoLatLngBounds;
   Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMap;
+  StaticMap: new (
+    container: HTMLElement,
+    options: { center: KakaoLatLng; level: number; marker?: { position: KakaoLatLng } | boolean },
+  ) => KakaoStaticMap;
   Marker: new (options: {
     map: KakaoMap;
     position: KakaoLatLng;
