@@ -1,6 +1,7 @@
 import { ArrowRight, Signpost } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { CourseRoadviewThumbnail } from '@/features/courses/components/course-roadview-thumbnail';
 import type { CourseRecommendation } from '@/features/courses/types';
 import { ClimateBadge } from '@/shared/components/climate-badge';
 import { getSpotImage } from '@/shared/lib/spot-image';
@@ -27,18 +28,12 @@ export function RecommendationCard({ course, rank }: RecommendationCardProps) {
             {String(rank).padStart(2, '0')}
           </span>
 
-          <div
-            className={
-              image
-                ? 'aspect-square w-24 overflow-hidden rounded-md'
-                : 'tc-route-visual aspect-square w-24 rounded-md'
-            }
-            aria-hidden="true"
-          >
-            {image && (
-              <img alt="" className="h-full w-full object-cover" loading="lazy" src={image} />
-            )}
-          </div>
+          <CourseRoadviewThumbnail
+            className="aspect-square w-24 rounded-md"
+            fallbackImage={image}
+            latitude={course.representativeLatitude}
+            longitude={course.representativeLongitude}
+          />
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
