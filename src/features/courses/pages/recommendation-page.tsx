@@ -6,27 +6,32 @@ import { RecommendationListSkeleton } from '@/features/courses/components/recomm
 import { useCourseRecommendations } from '@/features/courses/hooks/use-course-recommendations';
 import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
 import { EmptyState } from '@/shared/components/empty-state';
+import { Pagination } from '@/shared/components/pagination';
 import { Button } from '@/shared/components/ui/button';
-import { cn } from '@/shared/lib/utils';
 
-const recommendationLimits = [5, 10, 20] as const;
-type RecommendationLimit = (typeof recommendationLimits)[number];
+/** 추천 API는 페이지 없이 상위 N개를 내려주므로, 한 번에 가져와 화면에서 나눠 보여 준다. */
+export const RECOMMENDATION_FETCH_LIMIT = 20;
+/** 한 페이지에 보여 주는 코스 수. 썸네일(로드뷰)을 한 번에 4개씩만 불러오기 위한 값이다. */
+export const RECOMMENDATION_PAGE_SIZE = 4;
 
-function parseLimit(value: string | null): RecommendationLimit {
-  const limit = Number(value);
-  return recommendationLimits.includes(limit as RecommendationLimit)
-    ? (limit as RecommendationLimit)
-    : 5;
+function parsePage(value: string | null) {
+  const page = Number(value ?? 0);
+  return Number.isInteger(page) && page >= 0 ? page : 0;
 }
 
 export function RecommendationPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const limit = parseLimit(searchParams.get('limit'));
-  const recommendationsQuery = useCourseRecommendations(limit);
+  const requestedPage = parsePage(searchParams.get('page'));
+  const recommendationsQuery = useCourseRecommendations(RECOMMENDATION_FETCH_LIMIT);
 
-  function updateLimit(nextLimit: RecommendationLimit) {
+  const total = recommendationsQuery.data?.length ?? 0;
+  const totalPages = Math.max(Math.ceil(total / RECOMMENDATION_PAGE_SIZE), 1);
+  const page = Math.min(requestedPage, totalPages - 1);
+  const pageStart = page * RECOMMENDATION_PAGE_SIZE;
+
+  function updatePage(nextPage: number) {
     const nextParams = new URLSearchParams();
-    if (nextLimit !== 5) nextParams.set('limit', String(nextLimit));
+    if (nextPage > 0) nextParams.set('page', String(nextPage));
     setSearchParams(nextParams);
   }
 
@@ -44,28 +49,15 @@ export function RecommendationPage() {
       </header>
 
       <section className="mt-6" aria-labelledby="recommendation-results-title">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-bold" id="recommendation-results-title">
-              추천 순위
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">최대 {limit}개 코스를 표시합니다.</p>
-          </div>
-          <div className="flex rounded-full bg-secondary p-1" aria-label="표시할 추천 코스 수">
-            {recommendationLimits.map((option) => (
-              <Button
-                aria-pressed={limit === option}
-                className={cn('min-w-14', limit === option && 'shadow-sm')}
-                key={option}
-                onClick={() => updateLimit(option)}
-                size="sm"
-                type="button"
-                variant={limit === option ? 'secondary' : 'ghost'}
-              >
-                {option}개
-              </Button>
-            ))}
-          </div>
+        <div className="mb-6">
+          <h2 className="text-lg font-bold" id="recommendation-results-title">
+            추천 순위
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {total > 0
+              ? `총 ${total}개 코스를 ${RECOMMENDATION_PAGE_SIZE}개씩 나누어 표시합니다.`
+              : `${RECOMMENDATION_PAGE_SIZE}개씩 나누어 표시합니다.`}
+          </p>
         </div>
 
         {recommendationsQuery.isPending ? (
@@ -83,14 +75,23 @@ export function RecommendationPage() {
             title="추천할 코스가 아직 없습니다"
           />
         ) : (
-          <ol
-            className="space-y-4"
-            aria-busy={recommendationsQuery.isFetching && !recommendationsQuery.isPending}
-          >
-            {recommendationsQuery.data.map((course, index) => (
-              <RecommendationCard course={course} key={course.courseId} rank={index + 1} />
-            ))}
-          </ol>
+          <>
+            <ol
+              className="space-y-4"
+              aria-busy={recommendationsQuery.isFetching && !recommendationsQuery.isPending}
+            >
+              {recommendationsQuery.data
+                .slice(pageStart, pageStart + RECOMMENDATION_PAGE_SIZE)
+                .map((course, index) => (
+                  <RecommendationCard
+                    course={course}
+                    key={course.courseId}
+                    rank={pageStart + index + 1}
+                  />
+                ))}
+            </ol>
+            <Pagination onPageChange={updatePage} page={page} totalPages={totalPages} />
+          </>
         )}
       </section>
     </main>

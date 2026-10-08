@@ -51,14 +51,27 @@ test('코스 목록 API가 실패하면 다시 시도할 수 있다', async ({ p
   await expect(page.getByRole('link', { name: /경복궁에서 시작하는 코스/ })).toBeVisible();
 });
 
-test('추천 코스를 개수별로 보고 코스 상세로 이동한다', async ({ page }) => {
+test('추천 코스를 4개씩 나누어 보고 코스 상세로 이동한다', async ({ page }) => {
   const requestedLimits: string[] = [];
+  const manyRecommendations = Array.from({ length: 6 }, (_, index) => ({
+    ...recommendations[index % recommendations.length],
+    courseId: index === 0 ? 11 : 100 + index,
+    sourceCourseId: `C-0${20 + index}`,
+    representativeSpotName: [
+      '성산일출봉',
+      '경복궁',
+      '해운대해수욕장',
+      '불국사',
+      '경포해변',
+      '태종대',
+    ][index],
+  }));
   await mockApi(page, [
     {
       path: '/api/tour-courses/recommendations',
       respond: ({ url }) => {
         requestedLimits.push(url.searchParams.get('limit') ?? '');
-        return { body: recommendations };
+        return { body: manyRecommendations };
       },
     },
     {
@@ -70,14 +83,18 @@ test('추천 코스를 개수별로 보고 코스 상세로 이동한다', async
   await page.goto('/recommendations');
 
   const items = page.getByRole('listitem').filter({ hasText: '에서 시작하는 코스' });
+  await expect(items).toHaveCount(4);
   await expect(items.first()).toContainText('성산일출봉');
   await expect(items.first()).toContainText('지수 93');
   await expect(items.nth(1)).toContainText('경복궁');
+  expect(requestedLimits).toEqual(['20']);
 
-  await page.getByRole('button', { name: '10개' }).click();
-  await expect(page).toHaveURL(/limit=10/);
-  await expect.poll(() => requestedLimits).toContain('10');
+  await page.getByRole('button', { name: '다음 페이지' }).click();
+  await expect(page).toHaveURL(/page=1/);
+  await expect(items).toHaveCount(2);
+  await expect(items.first()).toContainText('경포해변');
 
+  await page.getByRole('button', { name: '이전 페이지' }).click();
   await page.getByRole('link', { name: /성산일출봉에서 시작하는 코스/ }).click();
   await expect(page).toHaveURL(/\/courses\/11$/);
 });
