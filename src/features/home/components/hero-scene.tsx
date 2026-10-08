@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 type HeroSceneProps = {
+  active: boolean;
   compact: boolean;
   onReady: () => void;
   reducedMotion: boolean;
@@ -410,6 +411,7 @@ export function HeroScene(props: HeroSceneProps) {
     <Canvas
       className="h-full w-full"
       dpr={props.compact ? [1, 1.2] : [1, 1.6]}
+      frameloop={props.active ? 'always' : 'never'}
       gl={{ alpha: false, antialias: !props.compact, powerPreference: 'high-performance' }}
       shadows={!props.compact}
     >
