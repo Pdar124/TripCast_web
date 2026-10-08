@@ -13,7 +13,26 @@ export type KakaoMap = {
 };
 /** 상호작용 없이 지도 이미지만 그리는 정적 지도. */
 export type KakaoStaticMap = object;
-export type KakaoMarker = { setMap: (map: KakaoMap | null) => void };
+export type KakaoRoadview = {
+  setPanoId: (panoId: number, position: KakaoLatLng) => void;
+  setViewpoint: (viewpoint: { pan: number; tilt: number; zoom: number }) => void;
+  /** 좌표(와 고도)를 바라보는 시점을 계산하는 투영 객체. 파노라마가 뜬 뒤(init)에 쓴다. */
+  getProjection: () => {
+    viewpointFromCoords: (
+      latLng: KakaoLatLng,
+      height: number,
+    ) => { pan: number; tilt: number; zoom: number };
+  };
+};
+export type KakaoRoadviewClient = {
+  /** 반경(m) 안에 파노라마가 없으면 callback에 null이 전달된다. */
+  getNearestPanoId: (
+    position: KakaoLatLng,
+    radius: number,
+    callback: (panoId: number | null) => void,
+  ) => void;
+};
+export type KakaoMarker = { setMap: (map: KakaoMap | KakaoRoadview | null) => void };
 export type KakaoCustomOverlay = { setMap: (map: KakaoMap | null) => void };
 export type KakaoPolyline = { setMap: (map: KakaoMap | null) => void };
 
@@ -21,13 +40,26 @@ export type KakaoMapsApi = {
   load: (callback: () => void) => void;
   LatLng: new (latitude: number, longitude: number) => KakaoLatLng;
   LatLngBounds: new () => KakaoLatLngBounds;
-  Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMap;
+  Map: new (
+    container: HTMLElement,
+    options: {
+      center: KakaoLatLng;
+      level: number;
+      draggable?: boolean;
+      scrollwheel?: boolean;
+      disableDoubleClick?: boolean;
+      disableDoubleClickZoom?: boolean;
+      keyboardShortcuts?: boolean;
+    },
+  ) => KakaoMap;
   StaticMap: new (
     container: HTMLElement,
     options: { center: KakaoLatLng; level: number; marker?: { position: KakaoLatLng } | boolean },
   ) => KakaoStaticMap;
+  Roadview: new (container: HTMLElement) => KakaoRoadview;
+  RoadviewClient: new () => KakaoRoadviewClient;
   Marker: new (options: {
-    map: KakaoMap;
+    map: KakaoMap | KakaoRoadview;
     position: KakaoLatLng;
     title?: string;
     clickable?: boolean;
@@ -50,8 +82,16 @@ export type KakaoMapsApi = {
     strokeStyle?: 'solid' | 'shortdash' | 'dash';
   }) => KakaoPolyline;
   event: {
-    addListener: (target: KakaoMarker, type: 'click', handler: () => void) => void;
-    removeListener: (target: KakaoMarker, type: 'click', handler: () => void) => void;
+    addListener: (
+      target: KakaoMarker | KakaoRoadview | KakaoMap,
+      type: 'click' | 'init' | 'tilesloaded',
+      handler: () => void,
+    ) => void;
+    removeListener: (
+      target: KakaoMarker | KakaoRoadview | KakaoMap,
+      type: 'click' | 'init' | 'tilesloaded',
+      handler: () => void,
+    ) => void;
   };
 };
 
