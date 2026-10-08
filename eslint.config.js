@@ -6,13 +6,25 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results', 'src/types/api.ts'] },
+  {
+    ignores: [
+      '.claude/**',
+      'dist',
+      'coverage',
+      'playwright-report',
+      'test-results',
+      'src/types/api.ts',
+    ],
+  },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2022,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
       globals: {
         ...globals.browser,
         ...globals.node,

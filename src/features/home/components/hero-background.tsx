@@ -1,5 +1,5 @@
-import { Component, lazy, Suspense, type ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useInView } from 'motion/react';
+import { Component, lazy, Suspense, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { HeroScenePlaceholder } from '@/features/home/components/hero-scene-placeholder';
 
@@ -42,13 +42,15 @@ function useMediaQuery(query: string) {
 }
 
 export function HeroBackground() {
+  const rootRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   const compact = useMediaQuery('(max-width: 767px)');
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const supportsWebGL = typeof window !== 'undefined' && 'WebGLRenderingContext' in window;
+  const isInView = useInView(rootRef, { margin: '120px 0px' });
 
   return (
-    <div className="absolute inset-0" aria-hidden="true">
+    <div className="absolute inset-0" aria-hidden="true" ref={rootRef}>
       <HeroScenePlaceholder hidden={ready} />
       {supportsWebGL && (
         <div
@@ -58,6 +60,7 @@ export function HeroBackground() {
           <HeroErrorBoundary>
             <Suspense fallback={null}>
               <LazyHeroScene
+                active={isInView}
                 compact={compact}
                 onReady={() => setReady(true)}
                 reducedMotion={reducedMotion}

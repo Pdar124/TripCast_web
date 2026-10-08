@@ -19,12 +19,18 @@ describe('HomePage', () => {
       </QueryClientProvider>,
     );
 
-    const heroTitle = screen.getByText(/어디로 떠날까/);
+    const heroTitle = screen.getByText(/여행 가기 좋은 날씨/);
     expect(heroTitle).toBeInTheDocument();
     expect(heroTitle.closest('h1')).toHaveClass('[text-shadow:0_2px_24px_rgba(0,0,0,0.45)]');
     expect(screen.getAllByRole('link', { name: /관광지 검색/ })[0]).toHaveAttribute(
       'href',
       '/spots',
+    );
+    expect(screen.getByRole('heading', { name: '스크롤하며 미리 떠나보세요' })).toBeInTheDocument();
+    expect(screen.getByTestId('walkthrough-stage')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '설명 건너뛰고 TripCast 시작하기' })).toHaveAttribute(
+      'href',
+      '#live-recommendations',
     );
     expect(screen.getByTestId('hero-scene-placeholder')).toBeInTheDocument();
     expect(

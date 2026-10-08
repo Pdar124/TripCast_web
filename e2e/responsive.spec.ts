@@ -18,7 +18,7 @@ const viewports = [
 ] as const;
 
 const routes = [
-  { path: '/', ready: /어디로 떠날까/ },
+  { path: '/', ready: /여행 가기 좋은 날씨/ },
   { path: '/spots', ready: /전체 관광지/ },
   { path: '/spots?view=map', ready: /전체 관광지/ },
   { path: '/spots/1', ready: /경복궁/ },
