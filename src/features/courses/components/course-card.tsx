@@ -1,6 +1,7 @@
-import { ArrowRight, Route, Signpost } from 'lucide-react';
+import { ArrowRight, Signpost } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { CourseRouteThumbnail } from '@/features/courses/components/course-route-thumbnail';
 import type { TourCourseSummary } from '@/features/courses/types';
 import { getSpotImage } from '@/shared/lib/spot-image';
 
@@ -16,24 +17,14 @@ export function CourseCard({ course }: CourseCardProps) {
   return (
     <article className="group tc-interactive-card h-full">
       <Link className="flex h-full flex-col" to={`/courses/${course.courseId}`}>
-        <div
-          className={
-            image ? 'relative aspect-[16/10] overflow-hidden' : 'tc-route-visual aspect-[16/10]'
-          }
-          aria-hidden="true"
-        >
-          {image && (
-            <img
-              alt=""
-              className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-              loading="lazy"
-              src={image}
-            />
-          )}
-          <span className="absolute bottom-4 left-4 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm">
-            <Route className="h-5 w-5" />
-          </span>
-        </div>
+        <CourseRouteThumbnail
+          className="aspect-[16/10]"
+          endLatitude={course.endLatitude}
+          endLongitude={course.endLongitude}
+          fallbackImage={image}
+          startLatitude={course.startLatitude}
+          startLongitude={course.startLongitude}
+        />
         <div className="flex flex-1 flex-col p-5">
           <span className="tc-tag w-fit">{themeName}</span>
           <h2 className="mt-3 text-xl font-bold tracking-tight">{spotName}에서 시작하는 코스</h2>
