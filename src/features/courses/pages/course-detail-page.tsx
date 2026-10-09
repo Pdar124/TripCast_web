@@ -5,7 +5,9 @@ import { Link, useParams } from 'react-router-dom';
 import { CourseDetailSkeleton } from '@/features/courses/components/course-detail-skeleton';
 import { CourseRoutePanel } from '@/features/courses/components/course-route-panel';
 import { CourseStopItem } from '@/features/courses/components/course-stop-item';
+import { useTourCourse } from '@/features/courses/hooks/use-tour-course';
 import { useTourCourseWeather } from '@/features/courses/hooks/use-tour-course-weather';
+import type { StopWeatherStatus, TourCourseStopWeather } from '@/features/courses/types';
 import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
 import { EmptyState } from '@/shared/components/empty-state';
 import { Button } from '@/shared/components/ui/button';
@@ -18,16 +20,33 @@ function isValidId(id: string | undefined): id is string {
 export function CourseDetailPage() {
   const { id } = useParams();
   const validId = isValidId(id) ? id : undefined;
-  const courseQuery = useTourCourseWeather(validId);
+  // 코스·관광지 목록은 바로 그리고, 느린 날씨는 기다리지 않고 따로 받아 채운다.
+  const courseQuery = useTourCourse(validId);
+  const weatherQuery = useTourCourseWeather(validId);
 
   const stops = useMemo(
     () =>
       courseQuery.data
-        ? [...courseQuery.data.stops].sort((a, b) => a.spot.courseOrder - b.spot.courseOrder)
+        ? [...courseQuery.data.stops].sort((a, b) => a.courseOrder - b.courseOrder)
         : [],
     [courseQuery.data],
   );
-  const firstStop = stops[0]?.spot;
+  const firstStop = stops[0];
+
+  const weatherStatus: StopWeatherStatus = weatherQuery.isError
+    ? 'unavailable'
+    : weatherQuery.data
+      ? 'ready'
+      : 'loading';
+  // 상세의 정류지에 stopId로 매칭해 weather, climateIndex만 덧붙인다.
+  const stopWeathers = useMemo<TourCourseStopWeather[]>(() => {
+    const byStopId = new Map(weatherQuery.data?.stops.map((item) => [item.spot.stopId, item]));
+    return stops.map((spot) => ({
+      spot,
+      climateIndex: byStopId.get(spot.stopId)?.climateIndex ?? null,
+      weather: byStopId.get(spot.stopId)?.weather ?? null,
+    }));
+  }, [stops, weatherQuery.data]);
 
   return (
     <main className="tc-page">
@@ -91,8 +110,12 @@ export function CourseDetailPage() {
                 </p>
               </div>
               <ol className="space-y-5">
-                {stops.map((stopWeather) => (
-                  <CourseStopItem key={stopWeather.spot.stopId} stopWeather={stopWeather} />
+                {stopWeathers.map((stopWeather) => (
+                  <CourseStopItem
+                    key={stopWeather.spot.stopId}
+                    stopWeather={stopWeather}
+                    weatherStatus={weatherStatus}
+                  />
                 ))}
               </ol>
             </section>

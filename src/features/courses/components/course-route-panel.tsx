@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { CourseMap } from '@/features/courses/components/course-map';
-import type { TourCourseStopWeather } from '@/features/courses/types';
+import type { TourCourseStop } from '@/features/courses/types';
 
 type CourseRoutePanelProps = {
   /** 방문 순서대로 정렬된 정류지 */
-  stops: TourCourseStopWeather[];
+  stops: TourCourseStop[];
 };
 
 function formatCoordinate(value: number) {
@@ -17,7 +17,7 @@ export function CourseRoutePanel({ stops }: CourseRoutePanelProps) {
   const navigate = useNavigate();
   const mapStops = useMemo(
     () =>
-      stops.map(({ spot }) => ({
+      stops.map((spot) => ({
         stopId: spot.stopId,
         spotId: spot.tourSpotId,
         order: spot.courseOrder,
@@ -37,7 +37,7 @@ export function CourseRoutePanel({ stops }: CourseRoutePanelProps) {
       />
 
       <ol className="max-h-[260px] space-y-4 overflow-y-auto border-t border-border/60 p-5">
-        {stops.map(({ spot }) => (
+        {stops.map((spot) => (
           <li className="flex gap-3" key={spot.stopId}>
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-background text-xs font-bold text-primary shadow-sm">
               {spot.courseOrder}

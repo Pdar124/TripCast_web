@@ -25,11 +25,16 @@ export type TourCourseStop = components['schemas']['TourCourseStopResponse'];
 export type Weather = components['schemas']['WeatherResponse'];
 export type ClimateIndex = components['schemas']['ClimateIndexResponse'];
 
+export type TourCourse = components['schemas']['TourCourseResponse'];
+
 export type TourCourseStopWeather = {
   spot: TourCourseStop;
   climateIndex: ClimateIndex | null;
   weather: Weather | null;
 };
+
+/** 정류지 날씨 영역의 상태. 상세 응답은 먼저 그리고 날씨는 늦게 도착하므로 따로 구분한다. */
+export type StopWeatherStatus = 'loading' | 'ready' | 'unavailable';
 
 export type TourCourseWeather = {
   courseId: number;
