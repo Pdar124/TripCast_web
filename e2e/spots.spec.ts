@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { spotWeather, spots } from './support/fixtures';
+import { courseWeather, spotCourses, spotWeather, spots } from './support/fixtures';
 import { mockApi, pageOf } from './support/mock-api';
 
 test.beforeEach(async ({ page }) => {
@@ -16,6 +16,11 @@ test.beforeEach(async ({ page }) => {
       path: /^\/api\/tour-spots\/\d+\/weather$/,
       respond: ({ url }) => ({ body: spotWeather(Number(url.pathname.split('/')[3])) }),
     },
+    {
+      path: /^\/api\/tour-spots\/\d+\/courses$/,
+      respond: ({ url }) => ({ body: url.pathname.split('/')[3] === '1' ? spotCourses : [] }),
+    },
+    { path: '/api/tour-courses/10/weather', respond: () => ({ body: courseWeather }) },
   ]);
 });
 
@@ -36,6 +41,25 @@ test('관광지를 검색해 상세 페이지로 이동한다', async ({ page })
   await expect(page.getByText('21°')).toBeVisible();
   // 카카오맵 앱 키가 없는 환경에서는 플레이스홀더를 보여 준다.
   await expect(page.getByRole('heading', { name: '지도 영역' })).toBeVisible();
+});
+
+test('관광지 상세에서 포함된 코스로 바로 이동한다', async ({ page }) => {
+  await page.goto('/spots/1');
+
+  await expect(page.getByRole('heading', { name: '이 관광지가 포함된 코스' })).toBeVisible();
+  await page.getByRole('link', { name: /경복궁에서 시작하는 코스/ }).click();
+
+  await expect(page).toHaveURL(/\/courses\/10$/);
+  await expect(
+    page.getByRole('heading', { level: 1, name: '경복궁에서 시작하는 코스' }),
+  ).toBeVisible();
+});
+
+test('포함된 코스가 없는 관광지는 코스 섹션을 숨긴다', async ({ page }) => {
+  await page.goto('/spots/2');
+
+  await expect(page.getByRole('heading', { level: 1, name: '성산일출봉' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '이 관광지가 포함된 코스' })).toHaveCount(0);
 });
 
 test('목록과 지도 보기를 전환한다', async ({ page }) => {
