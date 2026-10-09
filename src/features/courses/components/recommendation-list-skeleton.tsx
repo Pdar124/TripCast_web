@@ -4,7 +4,7 @@ import { Skeleton } from '@/shared/components/ui/skeleton';
 export function RecommendationListSkeleton() {
   return (
     <div className="space-y-4" aria-label="추천 코스를 불러오는 중" role="status">
-      {Array.from({ length: 5 }, (_, index) => (
+      {Array.from({ length: 4 }, (_, index) => (
         <Card
           className="grid gap-4 p-4 sm:grid-cols-[56px_96px_minmax(0,1fr)_auto] sm:items-center sm:gap-5"
           key={index}

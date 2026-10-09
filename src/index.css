@@ -261,6 +261,13 @@
   }
 }
 
+/* 카드 썸네일의 카카오 로드뷰는 장식이므로 확대 버튼·이동 화살표·길 이름 라벨을 숨긴다(저작권 표기는 유지). */
+.tc-roadview-static [id^='_box_util_'],
+.tc-roadview-static [id^='_al_'],
+.tc-roadview-static [id^='_il_'] {
+  display: none !important;
+}
+
 @keyframes hero-placeholder-sheen {
   0% {
     transform: translateX(0);

@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { CourseRoadviewThumbnail } from '@/features/courses/components/course-roadview-thumbnail';
 import { useCourseRecommendations } from '@/features/courses/hooks/use-course-recommendations';
 import type { CourseRecommendation } from '@/features/courses/types';
 import { ClimateBadge } from '@/shared/components/climate-badge';
@@ -15,12 +16,12 @@ function HomeRecommendationCard({ course }: { course: CourseRecommendation }) {
 
   return (
     <Link className="tc-interactive-card block" to={`/courses/${course.courseId}`}>
-      <div
-        className={image ? 'aspect-[16/10] overflow-hidden' : 'tc-route-visual aspect-[16/10]'}
-        aria-hidden="true"
-      >
-        {image && <img alt="" className="h-full w-full object-cover" loading="lazy" src={image} />}
-      </div>
+      <CourseRoadviewThumbnail
+        className="aspect-[16/10]"
+        fallbackImage={image}
+        latitude={course.representativeLatitude}
+        longitude={course.representativeLongitude}
+      />
       <div className="grid gap-3 p-5">
         <div className="flex items-start justify-between gap-3">
           <h3 className="break-keep text-lg font-bold leading-[1.3]">
