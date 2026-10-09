@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { courseWeather, spotCourses, spotWeather, spots } from './support/fixtures';
+import { course, courseWeather, spotCourses, spotWeather, spots } from './support/fixtures';
 import { mockApi, pageOf } from './support/mock-api';
 
 test.beforeEach(async ({ page }) => {
@@ -20,6 +20,7 @@ test.beforeEach(async ({ page }) => {
       path: /^\/api\/tour-spots\/\d+\/courses$/,
       respond: ({ url }) => ({ body: url.pathname.split('/')[3] === '1' ? spotCourses : [] }),
     },
+    { path: '/api/tour-courses/10', respond: () => ({ body: course }) },
     { path: '/api/tour-courses/10/weather', respond: () => ({ body: courseWeather }) },
   ]);
 });
