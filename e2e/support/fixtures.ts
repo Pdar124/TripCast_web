@@ -91,6 +91,13 @@ export const courseWeather = {
   ],
 };
 
+/** 날씨 없이 코스·관광지 목록만 내려오는 상세 API 응답 */
+export const course = {
+  courseId: courseWeather.courseId,
+  sourceCourseId: courseWeather.sourceCourseId,
+  stops: courseWeather.stops.map(({ spot }) => spot),
+};
+
 export const recommendations = [
   {
     courseId: 11,

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 import {
+  course,
   courseSummaries,
   courseWeather,
   excellentIndex,
@@ -35,6 +36,7 @@ test.beforeEach(async ({ page }) => {
     { path: '/api/tour-spots', respond: () => ({ body: pageOf(spots) }) },
     { path: '/api/tour-spots/1/weather', respond: () => ({ body: spotWeather(1) }) },
     { path: '/api/tour-courses', respond: () => ({ body: pageOf(courseSummaries) }) },
+    { path: '/api/tour-courses/10', respond: () => ({ body: course }) },
     { path: '/api/tour-courses/10/weather', respond: () => ({ body: courseWeather }) },
     { path: '/api/tour-courses/recommendations', respond: () => ({ body: recommendations }) },
     {

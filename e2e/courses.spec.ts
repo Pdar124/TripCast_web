@@ -1,11 +1,12 @@
 import { expect, test } from '@playwright/test';
 
-import { courseSummaries, courseWeather, recommendations } from './support/fixtures';
+import { course, courseSummaries, courseWeather, recommendations } from './support/fixtures';
 import { mockApi, pageOf } from './support/mock-api';
 
 test('관광코스 목록에서 상세로 이동해 정류지와 날씨를 확인한다', async ({ page }) => {
   await mockApi(page, [
     { path: '/api/tour-courses', respond: () => ({ body: pageOf(courseSummaries) }) },
+    { path: '/api/tour-courses/10', respond: () => ({ body: course }) },
     { path: '/api/tour-courses/10/weather', respond: () => ({ body: courseWeather }) },
   ]);
 
@@ -73,6 +74,10 @@ test('추천 코스를 4개씩 나누어 보고 코스 상세로 이동한다', 
         requestedLimits.push(url.searchParams.get('limit') ?? '');
         return { body: manyRecommendations };
       },
+    },
+    {
+      path: '/api/tour-courses/11',
+      respond: () => ({ body: { ...course, courseId: 11 } }),
     },
     {
       path: '/api/tour-courses/11/weather',
