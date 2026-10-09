@@ -2,18 +2,21 @@ import { Clock3, Cloud, CloudSun, MapPin, Sun } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { IndoorTypeBadge } from '@/features/courses/components/indoor-type-badge';
-import type { TourCourseStopWeather } from '@/features/courses/types';
+import type { StopWeatherStatus, TourCourseStopWeather } from '@/features/courses/types';
 import { ClimateBadge } from '@/shared/components/climate-badge';
+import { Skeleton } from '@/shared/components/ui/skeleton';
 
 type CourseStopItemProps = {
+  /** 날씨가 아직 없거나 실패한 동안에는 climateIndex·weather가 null이다. */
   stopWeather: TourCourseStopWeather;
+  weatherStatus: StopWeatherStatus;
 };
 
 function formatCoordinate(value: number) {
   return Number.isFinite(value) ? value.toFixed(4) : '정보 없음';
 }
 
-export function CourseStopItem({ stopWeather }: CourseStopItemProps) {
+export function CourseStopItem({ stopWeather, weatherStatus }: CourseStopItemProps) {
   const { spot, climateIndex, weather } = stopWeather;
   const travelLabel =
     spot.courseOrder === 1 || spot.travelTime <= 0 ? '출발지' : `이동 ${spot.travelTime}분`;
@@ -51,7 +54,11 @@ export function CourseStopItem({ stopWeather }: CourseStopItemProps) {
             </div>
             <div className="flex flex-wrap justify-end gap-2">
               <IndoorTypeBadge indoorType={spot.indoorType} />
-              <ClimateBadge climateIndex={climateIndex} />
+              {weatherStatus === 'loading' ? (
+                <Skeleton aria-hidden="true" className="h-8 w-28 rounded-full" />
+              ) : weatherStatus === 'ready' ? (
+                <ClimateBadge climateIndex={climateIndex} />
+              ) : null}
             </div>
           </div>
 
@@ -69,7 +76,11 @@ export function CourseStopItem({ stopWeather }: CourseStopItemProps) {
 
         <div className="flex items-center gap-3 border-t bg-secondary p-4">
           <SkyIcon className="h-5 w-5 text-primary" aria-hidden="true" />
-          {weather ? (
+          {weatherStatus === 'loading' ? (
+            <p className="text-sm font-medium text-muted-foreground" role="status">
+              날씨를 불러오는 중입니다
+            </p>
+          ) : weather ? (
             <p className="text-sm font-bold">
               {temperature}{' '}
               <span className="font-medium text-muted-foreground">
