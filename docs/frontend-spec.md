@@ -122,13 +122,14 @@
 
 **목적**: 특정 관광지의 실시간 날씨 + 소속 지역 관광기후지수 확인
 
-**사용 API**: `GET /api/tour-spots/{id}/weather` → `TourSpotWeatherResponse{tourSpotName, latitude, longitude, weather, climateIndex}`
+**사용 API**: `GET /api/tour-spots/{id}/weather` → `TourSpotWeatherResponse{tourSpotName, latitude, longitude, weather, climateIndex}`, `GET /api/tour-spots/{id}/courses` → `TourSpotCourseResponse[]{courseId, sourceCourseId, representativeSpotName, representativeThemeName, stopCount, startLatitude, startLongitude, endLatitude, endLongitude, spotCourseOrder}`
 
 **화면 구성**
 
 - 제목(관광지명) + 좌표
 - 관광기후지수 배지(등급+점수, 없으면 "지수 없음" 중립 배지)
 - 날씨 카드(기온, 하늘상태 아이콘, 강수확률, 예보 기준 일시) — `weather`가 null이면 "날씨 정보를 불러오지 못했습니다"
+- "이 관광지가 포함된 코스" 목록(`SpotCoursesSection`): 코스별로 테마·대표 관광지·정류지 수·이 관광지의 방문 순서(`spotCourseOrder`)를 보여 주고, 누르면 `/courses/:id`로 이동합니다. 부가 정보라 로딩 중에는 스켈레톤, 실패하면 섹션 안에서만 안내와 "다시 시도" 버튼을 보여 주며 페이지 나머지는 그대로 표시합니다. 포함된 코스가 없으면(`[]`) 섹션을 숨깁니다.
 - 지도: 카카오맵에 관광지 위치 마커 1개 표시. `VITE_KAKAO_MAP_APP_KEY`가 없으면 기존 플레이스홀더, SDK 로드에 실패하면 안내 문구 + "다시 시도" 버튼
 
 #### 카카오맵 공통 규칙
@@ -243,17 +244,17 @@
 
 ## 5. 페이지 ↔ API 매핑 표
 
-| 페이지          | API                                |
-| --------------- | ---------------------------------- |
-| 홈              | 추천 API (limit=3)                 |
-| 관광지 검색     | 관광지 검색 API                    |
-| 관광지 상세     | 관광지 날씨 API                    |
-| 관광코스 목록   | 코스 목록 API                      |
-| 관광코스 상세   | 코스 상세 API + 코스 통합 날씨 API |
-| 추천 코스       | 추천 API                           |
-| 관광기후지수    | 지수 최신/기간 API                 |
-| 관리자 로그인   | 로그인 API                         |
-| 관리자 대시보드 | 관리자 동기화 API                  |
+| 페이지          | API                                   |
+| --------------- | ------------------------------------- |
+| 홈              | 추천 API (limit=3)                    |
+| 관광지 검색     | 관광지 검색 API                       |
+| 관광지 상세     | 관광지 날씨 API, 관광지 포함 코스 API |
+| 관광코스 목록   | 코스 목록 API                         |
+| 관광코스 상세   | 코스 상세 API + 코스 통합 날씨 API    |
+| 추천 코스       | 추천 API                              |
+| 관광기후지수    | 지수 최신/기간 API                    |
+| 관리자 로그인   | 로그인 API                            |
+| 관리자 대시보드 | 관리자 동기화 API                     |
 
 ## 6. 디자인 시스템
 
