@@ -31,6 +31,21 @@ export function spotWeather(id: number) {
   };
 }
 
+export const spotCourses = [
+  {
+    courseId: 10,
+    sourceCourseId: 'C-010',
+    representativeSpotName: '경복궁',
+    representativeThemeName: '역사문화',
+    stopCount: 2,
+    startLatitude: 37.5796,
+    startLongitude: 126.977,
+    endLatitude: 37.5775,
+    endLongitude: 126.9741,
+    spotCourseOrder: 1,
+  },
+];
+
 export const courseSummaries = [
   {
     courseId: 10,

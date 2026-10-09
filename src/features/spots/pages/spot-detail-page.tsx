@@ -2,6 +2,7 @@ import { ArrowLeft, MapPin } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 import { SpotDetailSkeleton } from '@/features/spots/components/spot-detail-skeleton';
+import { SpotCoursesSection } from '@/features/spots/components/spot-courses-section';
 import { SpotMap } from '@/features/spots/components/spot-map';
 import { useTourSpotWeather } from '@/features/spots/hooks/use-tour-spot-weather';
 import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
@@ -78,6 +79,8 @@ export function SpotDetailPage() {
               </h2>
               <WeatherCard weather={spotQuery.data.weather} />
             </section>
+
+            <SpotCoursesSection spotId={validId} />
           </div>
 
           <SpotMap

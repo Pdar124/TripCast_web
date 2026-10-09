@@ -1,5 +1,10 @@
 import { http } from '@/shared/api/http';
-import type { PageResponse, TourSpot, TourSpotWeather } from '@/features/spots/types';
+import type {
+  PageResponse,
+  TourSpot,
+  TourSpotCourse,
+  TourSpotWeather,
+} from '@/features/spots/types';
 
 export const TOUR_SPOT_PAGE_SIZE = 20;
 
@@ -22,5 +27,10 @@ export async function getTourSpots({
 
 export async function getTourSpotWeather(id: string) {
   const response = await http.get<TourSpotWeather>(`/api/tour-spots/${id}/weather`);
+  return response.data;
+}
+
+export async function getTourSpotCourses(id: string) {
+  const response = await http.get<TourSpotCourse[]>(`/api/tour-spots/${id}/courses`);
   return response.data;
 }

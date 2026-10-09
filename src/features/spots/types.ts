@@ -1,3 +1,5 @@
+import type { components } from '@/types/api';
+
 export type TourSpot = {
   id: number;
   name: string;
@@ -36,3 +38,5 @@ export type TourSpotWeather = {
   weather?: Weather | null;
   climateIndex?: ClimateIndex | null;
 };
+
+export type TourSpotCourse = components['schemas']['TourSpotCourseResponse'];

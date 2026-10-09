@@ -11,6 +11,7 @@ export const spotQueryKeys = {
   list: ({ keyword, page, size = TOUR_SPOT_PAGE_SIZE }: GetTourSpotsParams) =>
     [...spotQueryKeys.all, 'list', keyword, page, size] as const,
   detail: (id: string) => [...spotQueryKeys.all, 'detail', id] as const,
+  courses: (id: string) => [...spotQueryKeys.all, 'courses', id] as const,
 };
 
 export function useTourSpots(params: GetTourSpotsParams) {
