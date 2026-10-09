@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 import { CourseRouteThumbnail } from '@/features/courses/components/course-route-thumbnail';
 import type { TourCourseSummary } from '@/features/courses/types';
-import { getSpotImage } from '@/shared/lib/spot-image';
 
 type CourseCardProps = {
   course: TourCourseSummary;
@@ -12,7 +11,6 @@ type CourseCardProps = {
 export function CourseCard({ course }: CourseCardProps) {
   const spotName = course.representativeSpotName ?? '대표 관광지 정보 없음';
   const themeName = course.representativeThemeName ?? '테마 정보 없음';
-  const image = getSpotImage(course.representativeSpotName);
 
   return (
     <article className="group tc-interactive-card h-full">
@@ -21,7 +19,6 @@ export function CourseCard({ course }: CourseCardProps) {
           className="aspect-[16/10]"
           endLatitude={course.endLatitude}
           endLongitude={course.endLongitude}
-          fallbackImage={image}
           startLatitude={course.startLatitude}
           startLongitude={course.startLongitude}
         />

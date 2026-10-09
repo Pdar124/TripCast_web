@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { CourseRoadviewThumbnail } from '@/features/courses/components/course-roadview-thumbnail';
 import type { CourseRecommendation } from '@/features/courses/types';
 import { ClimateBadge } from '@/shared/components/climate-badge';
-import { getSpotImage } from '@/shared/lib/spot-image';
 
 type RecommendationCardProps = {
   course: CourseRecommendation;
@@ -12,8 +11,6 @@ type RecommendationCardProps = {
 };
 
 export function RecommendationCard({ course, rank }: RecommendationCardProps) {
-  const image = getSpotImage(course.representativeSpotName);
-
   return (
     <li>
       <article className="group tc-interactive-card">
@@ -30,7 +27,6 @@ export function RecommendationCard({ course, rank }: RecommendationCardProps) {
 
           <CourseRoadviewThumbnail
             className="aspect-square w-24 rounded-md"
-            fallbackImage={image}
             latitude={course.representativeLatitude}
             longitude={course.representativeLongitude}
           />
