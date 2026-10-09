@@ -96,6 +96,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tour-spots/{id}/courses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 관광지가 포함된 코스 목록 조회
+         * @description 관광지 ID를 이용해 해당 관광지를 포함하는 코스를 courseId 오름차순으로 조회합니다. 페이지네이션은 없습니다. 같은 관광지가 한 코스에 여러 번 나와도 코스는 한 번만 반환하며, spotCourseOrder는 가장 앞선 방문 순서입니다. 포함된 코스가 없으면 빈 배열을 반환하고, 관광지가 없으면 404입니다.
+         */
+        get: operations["getCourses"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tour-courses": {
         parameters: {
             query?: never;
@@ -324,6 +344,46 @@ export interface components {
             weather: components["schemas"]["WeatherResponse"];
             /** @description 관광지가 속한 지역의 최신 관광기후지수. 저장된 지수가 없으면 null */
             climateIndex: components["schemas"]["ClimateIndexResponse"];
+        };
+        /** @description 관광지가 포함된 코스 요약. 코스 목록 항목에 해당 관광지의 코스 내 방문 순서(spotCourseOrder)를 더한 형태 */
+        TourSpotCourseResponse: {
+            /** Format: int64 */
+            courseId: number;
+            sourceCourseId: string;
+            /** @description 코스 첫 관광지명. 정류지가 없는 코스는 null */
+            representativeSpotName: string | null;
+            /** @description 코스 첫 관광지의 테마명. 정류지가 없는 코스는 null */
+            representativeThemeName: string | null;
+            /**
+             * Format: int64
+             * @description 코스의 정류지 수
+             */
+            stopCount: number;
+            /**
+             * Format: double
+             * @description 첫 정류지(courseOrder 최솟값)의 위도. 정류지가 없는 코스는 null
+             */
+            startLatitude: number | null;
+            /**
+             * Format: double
+             * @description 첫 정류지의 경도. 정류지가 없는 코스는 null
+             */
+            startLongitude: number | null;
+            /**
+             * Format: double
+             * @description 마지막 정류지(courseOrder 최댓값)의 위도. 정류지가 1개면 시작과 같고, 없는 코스는 null
+             */
+            endLatitude: number | null;
+            /**
+             * Format: double
+             * @description 마지막 정류지의 경도. 정류지가 1개면 시작과 같고, 없는 코스는 null
+             */
+            endLongitude: number | null;
+            /**
+             * Format: int32
+             * @description 요청한 관광지의 코스 내 방문 순서(1부터 시작, TourCourseStopResponse.courseOrder와 같은 의미). 한 코스에 여러 번 등장하면 가장 앞선 순서
+             */
+            spotCourseOrder: number;
         };
         PageTourCourseSummaryResponse: {
             /** Format: int32 */
@@ -651,6 +711,55 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TourSpotWeatherResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getCourses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TourSpotCourseResponse"][];
                 };
             };
             /** @description Bad Request */
