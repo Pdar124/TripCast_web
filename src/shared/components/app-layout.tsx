@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 
 import { useAuthStore } from '@/features/admin/store/auth-store';
+import { ScrollManager } from '@/shared/components/scroll-manager';
 import { cn } from '@/shared/lib/utils';
 
 const navigation = [
@@ -51,6 +52,8 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <ScrollManager />
+
       <a
         className="fixed left-4 top-[-60px] z-[100] rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground transition-[top] focus:top-4"
         href="#main-content"
@@ -58,7 +61,10 @@ export function AppLayout() {
         본문으로 건너뛰기
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-black/10 bg-[var(--tc-topbar)] backdrop-blur-2xl dark:border-white/10">
+      <header
+        className="sticky top-0 z-40 border-b border-black/10 bg-[var(--tc-topbar)] backdrop-blur-2xl dark:border-white/10"
+        data-sticky-header
+      >
         <div className="container flex min-h-16 flex-wrap items-center gap-2 py-2 sm:gap-3 sm:py-0 lg:gap-6">
           <Link
             className="flex min-h-11 shrink-0 items-center gap-2"

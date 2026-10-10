@@ -13,6 +13,7 @@ import { ClimateBadge } from '@/shared/components/climate-badge';
 import { EmptyState } from '@/shared/components/empty-state';
 import { Button } from '@/shared/components/ui/button';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { scrollToTarget } from '@/shared/lib/scroll-navigation';
 
 const REGION_ID_PATTERN = /^\d{10}$/;
 
@@ -164,11 +165,14 @@ export function ClimatePage() {
     }
 
     setFormError(null);
-    setSearchParams({
-      region: nextRegionId,
-      from: nextFrom,
-      to: nextTo,
-    });
+    setSearchParams(
+      {
+        region: nextRegionId,
+        from: nextFrom,
+        to: nextTo,
+      },
+      { state: scrollToTarget('climate-results') },
+    );
   }
 
   return (
@@ -240,7 +244,7 @@ export function ClimatePage() {
         )}
       </form>
 
-      <div className="mt-8 space-y-8">
+      <div className="mt-8 space-y-8" id="climate-results">
         {latestQuery.isPending ? (
           <Skeleton className="h-36 rounded-lg" />
         ) : latestQuery.isError ? (

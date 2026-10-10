@@ -84,3 +84,33 @@ test('검색 결과가 없으면 안내 문구를 보여 준다', async ({ page 
 
   await expect(page.getByRole('heading', { name: '검색 결과가 없습니다' })).toBeVisible();
 });
+
+test('새 페이지는 상단에서 시작하고 브라우저 뒤로/앞으로 가기는 위치를 복원한다', async ({
+  page,
+}) => {
+  await page.goto('/spots');
+  await expect(page.getByRole('link', { name: /경복궁/ })).toBeVisible();
+
+  // 두 히스토리 엔트리 모두 복원할 수 있는 충분한 스크롤 영역을 만든다.
+  await page.evaluate(`(() => {
+    document.documentElement.style.minHeight = '3000px';
+    window.scrollTo(0, 900);
+  })()`);
+  await expect.poll(() => page.evaluate('window.scrollY')).toBe(900);
+
+  // Playwright의 자동 스크롤 없이 실제 링크 내비게이션만 발생시킨다.
+  await page.getByRole('link', { name: /경복궁/ }).evaluate('link => link.click()');
+  await expect(page).toHaveURL(/\/spots\/1$/);
+  await expect.poll(() => page.evaluate('window.scrollY')).toBe(0);
+
+  await page.evaluate('window.scrollTo(0, 500)');
+  await expect.poll(() => page.evaluate('window.scrollY')).toBe(500);
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/spots$/);
+  await expect.poll(() => page.evaluate('window.scrollY')).toBe(900);
+
+  await page.goForward();
+  await expect(page).toHaveURL(/\/spots\/1$/);
+  await expect.poll(() => page.evaluate('window.scrollY')).toBe(500);
+});

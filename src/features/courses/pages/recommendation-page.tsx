@@ -8,6 +8,7 @@ import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
 import { EmptyState } from '@/shared/components/empty-state';
 import { Pagination } from '@/shared/components/pagination';
 import { Button } from '@/shared/components/ui/button';
+import { scrollToTarget } from '@/shared/lib/scroll-navigation';
 
 /** 추천 API는 페이지 없이 상위 N개를 내려주므로, 한 번에 가져와 화면에서 나눠 보여 준다. */
 export const RECOMMENDATION_FETCH_LIMIT = 20;
@@ -32,7 +33,7 @@ export function RecommendationPage() {
   function updatePage(nextPage: number) {
     const nextParams = new URLSearchParams();
     if (nextPage > 0) nextParams.set('page', String(nextPage));
-    setSearchParams(nextParams);
+    setSearchParams(nextParams, { state: scrollToTarget('recommendation-results') });
   }
 
   return (
@@ -48,7 +49,11 @@ export function RecommendationPage() {
         </p>
       </header>
 
-      <section className="mt-6" aria-labelledby="recommendation-results-title">
+      <section
+        className="mt-6"
+        aria-labelledby="recommendation-results-title"
+        id="recommendation-results"
+      >
         <div className="mb-6">
           <h2 className="text-lg font-bold" id="recommendation-results-title">
             추천 순위

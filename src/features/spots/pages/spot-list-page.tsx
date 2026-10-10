@@ -12,6 +12,7 @@ import { EmptyState } from '@/shared/components/empty-state';
 import { Pagination } from '@/shared/components/pagination';
 import { Button } from '@/shared/components/ui/button';
 import { isValidCoordinate } from '@/shared/lib/kakao-maps';
+import { preserveScroll, scrollToTarget } from '@/shared/lib/scroll-navigation';
 import { cn } from '@/shared/lib/utils';
 
 function parsePage(value: string | null) {
@@ -34,12 +35,19 @@ export function SpotListPage() {
   const page = parsePage(searchParams.get('page'));
   const spotsQuery = useTourSpots({ keyword, page, size: TOUR_SPOT_PAGE_SIZE });
 
-  function updateSearchParams(nextKeyword: string, nextPage: number, nextView: SpotView = view) {
+  function updateSearchParams(
+    nextKeyword: string,
+    nextPage: number,
+    nextView: SpotView = view,
+    scrollToResults = true,
+  ) {
     const nextParams = new URLSearchParams();
     if (nextKeyword) nextParams.set('keyword', nextKeyword);
     if (nextPage > 0) nextParams.set('page', String(nextPage));
     if (nextView === 'map') nextParams.set('view', 'map');
-    setSearchParams(nextParams);
+    setSearchParams(nextParams, {
+      state: scrollToResults ? scrollToTarget('spot-results') : preserveScroll,
+    });
   }
 
   const mappableCount =
@@ -64,7 +72,7 @@ export function SpotListPage() {
         />
       </div>
 
-      <section className="mt-12" aria-labelledby="spot-results-title">
+      <section className="mt-12" aria-labelledby="spot-results-title" id="spot-results">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
           <div className="flex min-w-0 flex-wrap items-baseline gap-x-4 gap-y-1">
             <h2 className="text-lg font-bold" id="spot-results-title">
@@ -89,7 +97,7 @@ export function SpotListPage() {
                   view === value && 'shadow-sm',
                 )}
                 key={value}
-                onClick={() => updateSearchParams(keyword, page, value)}
+                onClick={() => updateSearchParams(keyword, page, value, false)}
                 size="sm"
                 type="button"
                 variant={view === value ? 'secondary' : 'ghost'}
