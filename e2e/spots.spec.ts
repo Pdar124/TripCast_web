@@ -99,7 +99,7 @@ test('새 페이지는 상단에서 시작하고 브라우저 뒤로/앞으로 �
   await expect.poll(() => page.evaluate('window.scrollY')).toBe(900);
 
   // Playwright의 자동 스크롤 없이 실제 링크 내비게이션만 발생시킨다.
-  await page.getByRole('link', { name: /경복궁/ }).evaluate('link => link.click()');
+  await page.getByRole('link', { name: /경복궁/ }).dispatchEvent('click');
   await expect(page).toHaveURL(/\/spots\/1$/);
   await expect.poll(() => page.evaluate('window.scrollY')).toBe(0);
 
