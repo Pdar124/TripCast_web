@@ -117,6 +117,18 @@ describe('ScrollManager', () => {
     expect(currentScrollY).toBe(180);
   });
 
+  it('상단 POP 복원은 문서 높이가 바뀌어도 이후 스크롤을 다시 고정하지 않는다', () => {
+    const router = createTestRouter();
+    render(<RouterProvider router={router} />);
+
+    expect(ResizeObserverMock.instances).toHaveLength(0);
+
+    setScrollPosition(900);
+    documentHeight = 4_000;
+
+    expect(currentScrollY).toBe(900);
+  });
+
   it('비동기 콘텐츠로 문서가 길어지면 잘렸던 POP 위치를 다시 복원한다', async () => {
     const user = userEvent.setup();
     const router = createTestRouter();

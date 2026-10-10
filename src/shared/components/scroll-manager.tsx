@@ -76,6 +76,9 @@ function restorePosition(position: ScrollPosition) {
 
   attempt();
 
+  // 맨 위는 문서 높이가 바뀌어도 다시 계산할 필요가 없다.
+  if (position.x === 0 && position.y === 0) return () => undefined;
+
   if (typeof ResizeObserver !== 'undefined') {
     observer = new ResizeObserver(attempt);
     observer.observe(document.documentElement);
