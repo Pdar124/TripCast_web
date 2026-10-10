@@ -14,8 +14,6 @@ type CourseRouteThumbnailProps = {
   startLongitude?: number | null;
   endLatitude?: number | null;
   endLongitude?: number | null;
-  /** 지도를 쓸 수 없을 때 보여 줄 기존 이미지. 없으면 공통 대체 배경을 쓴다. */
-  fallbackImage?: string | null;
   className?: string;
 };
 
@@ -49,7 +47,7 @@ function createLabel(text: string, tone: 'start' | 'end') {
 
 /**
  * 관광코스 썸네일. 상호작용을 막은 카카오맵에 출발·도착 지점만 마커로 표시한다.
- * 좌표가 없거나 앱 키가 없거나 SDK 로드에 실패하면 기존 이미지(없으면 공통 배경)로 대체한다.
+ * 좌표가 없거나 앱 키가 없거나 SDK 로드에 실패하면 공통 배경으로 대체한다.
  * 카드가 화면 근처에 보일 때만 불러온다.
  */
 export function CourseRouteThumbnail({
@@ -57,7 +55,6 @@ export function CourseRouteThumbnail({
   startLongitude,
   endLatitude,
   endLongitude,
-  fallbackImage = null,
   className,
 }: CourseRouteThumbnailProps) {
   const appKey = getKakaoMapAppKey();
@@ -161,18 +158,11 @@ export function CourseRouteThumbnail({
   return (
     <div
       aria-hidden="true"
-      className={cn(
-        'relative overflow-hidden',
-        !fallbackImage && !mapReady && 'tc-route-visual',
-        className,
-      )}
+      className={cn('relative overflow-hidden', !mapReady && 'tc-route-visual', className)}
       data-testid="course-route-thumbnail"
       data-view={mapReady ? 'route-map' : 'fallback'}
       ref={wrapperRef}
     >
-      {fallbackImage && (
-        <img alt="" className="h-full w-full object-cover" loading="lazy" src={fallbackImage} />
-      )}
       {!mapReady && (
         <span className="absolute bottom-4 left-4 grid h-10 w-10 place-items-center rounded-full bg-background/90 text-primary shadow-sm">
           <Route className="h-5 w-5" />
