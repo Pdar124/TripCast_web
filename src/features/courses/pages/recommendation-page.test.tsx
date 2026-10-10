@@ -61,6 +61,14 @@ describe('RecommendationPage', () => {
       await screen.findByRole('heading', { name: '경복궁에서 시작하는 코스' }),
     ).toBeInTheDocument();
     expect(screen.getAllByRole('listitem')).toHaveLength(4);
+    expect(screen.getByRole('list', { name: '추천 코스 목록' })).toHaveClass(
+      'grid',
+      'md:grid-cols-2',
+    );
+    expect(screen.getAllByTestId('course-roadview-thumbnail')[0]).toHaveClass(
+      'aspect-[16/9]',
+      'w-full',
+    );
     expect(screen.getByLabelText('1위')).toBeInTheDocument();
     expect(screen.getByLabelText('4위')).toBeInTheDocument();
     expect(screen.queryByLabelText('5위')).not.toBeInTheDocument();

@@ -82,7 +82,8 @@ export function RecommendationPage() {
         ) : (
           <>
             <ol
-              className="space-y-4"
+              className="grid gap-6 md:grid-cols-2"
+              aria-label="추천 코스 목록"
               aria-busy={recommendationsQuery.isFetching && !recommendationsQuery.isPending}
             >
               {recommendationsQuery.data

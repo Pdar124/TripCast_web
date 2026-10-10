@@ -12,45 +12,45 @@ type RecommendationCardProps = {
 
 export function RecommendationCard({ course, rank }: RecommendationCardProps) {
   return (
-    <li>
-      <article className="group tc-interactive-card">
-        <Link
-          className="grid gap-4 p-4 sm:grid-cols-[56px_96px_minmax(0,1fr)_auto] sm:items-center sm:gap-5"
-          to={`/courses/${course.courseId}`}
-        >
-          <span
-            className="grid h-14 w-14 place-items-center rounded-full bg-secondary text-lg font-black tabular-nums"
-            aria-label={`${rank}위`}
-          >
-            {String(rank).padStart(2, '0')}
-          </span>
+    <li className="h-full">
+      <article className="group tc-interactive-card h-full">
+        <Link className="flex h-full flex-col" to={`/courses/${course.courseId}`}>
+          <div className="relative">
+            <CourseRoadviewThumbnail
+              className="aspect-[16/9] w-full"
+              latitude={course.representativeLatitude}
+              longitude={course.representativeLongitude}
+            />
 
-          <CourseRoadviewThumbnail
-            className="aspect-square w-24 rounded-md"
-            latitude={course.representativeLatitude}
-            longitude={course.representativeLongitude}
-          />
+            <span
+              className="absolute left-4 top-4 grid h-12 w-12 place-items-center rounded-full border border-black/10 bg-[var(--tc-overlay)] text-base font-black tabular-nums shadow-sm backdrop-blur-md dark:border-white/10"
+              aria-label={`${rank}위`}
+            >
+              {String(rank).padStart(2, '0')}
+            </span>
+          </div>
 
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-1 flex-col p-5 sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="tc-tag">{course.representativeThemeName}</span>
+              <ClimateBadge climateIndex={course.climateIndex} />
             </div>
-            <h2 className="mt-2 break-keep text-lg font-bold tracking-tight">
+            <h2 className="mt-4 break-keep text-xl font-bold tracking-tight">
               {course.representativeSpotName}에서 시작하는 코스
             </h2>
             <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
               <Signpost className="h-4 w-4" aria-hidden="true" />
               정류지 {course.stopCount}곳 · 코스 {course.sourceCourseId}
             </p>
-          </div>
 
-          <span className="flex items-center gap-3 sm:justify-self-end">
-            <ClimateBadge climateIndex={course.climateIndex} />
-            <ArrowRight
-              className="h-5 w-5 text-[var(--tc-accent-ink)] transition-transform group-hover:translate-x-1"
-              aria-label="상세 보기"
-            />
-          </span>
+            <span className="mt-auto flex items-center justify-between gap-3 pt-6 text-sm font-bold text-[var(--tc-accent-ink)]">
+              코스 자세히 보기
+              <ArrowRight
+                className="h-5 w-5 text-[var(--tc-accent-ink)] transition-transform group-hover:translate-x-1"
+                aria-label="상세 보기"
+              />
+            </span>
+          </div>
         </Link>
       </article>
     </li>
