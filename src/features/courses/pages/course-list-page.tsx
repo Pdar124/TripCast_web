@@ -8,6 +8,7 @@ import { getApiErrorMessage } from '@/shared/api/get-api-error-message';
 import { EmptyState } from '@/shared/components/empty-state';
 import { Pagination } from '@/shared/components/pagination';
 import { Button } from '@/shared/components/ui/button';
+import { scrollToTarget } from '@/shared/lib/scroll-navigation';
 
 function parsePage(value: string | null) {
   const page = Number(value ?? 0);
@@ -22,7 +23,7 @@ export function CourseListPage() {
   function updatePage(nextPage: number) {
     const nextParams = new URLSearchParams();
     if (nextPage > 0) nextParams.set('page', String(nextPage));
-    setSearchParams(nextParams);
+    setSearchParams(nextParams, { state: scrollToTarget('course-results') });
   }
 
   return (
@@ -35,7 +36,7 @@ export function CourseListPage() {
         </p>
       </header>
 
-      <section className="mt-6" aria-labelledby="course-results-title">
+      <section className="mt-6" aria-labelledby="course-results-title" id="course-results">
         <div className="mb-5 flex min-h-7 items-center justify-between gap-4">
           <h2 className="text-lg font-bold" id="course-results-title">
             전체 관광코스
