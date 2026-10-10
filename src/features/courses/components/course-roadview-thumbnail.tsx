@@ -9,6 +9,8 @@ import { cn } from '@/shared/lib/utils';
 type CourseRoadviewThumbnailProps = {
   latitude?: number | null;
   longitude?: number | null;
+  /** 지도를 쓸 수 없을 때 보여 줄 기존 이미지. 없으면 공통 대체 배경을 쓴다. */
+  fallbackImage?: string | null;
   className?: string;
 };
 
@@ -24,11 +26,12 @@ const STATIC_MAP_LEVEL = 4;
 /**
  * 추천 코스 썸네일. 코스 대표 관광지 좌표 근처의 로드뷰를 상호작용 없이 보여 주고 마커를 표시한다.
  * 파노라마가 없는 곳은 정적 지도로, 좌표가 없거나 앱 키가 없거나 SDK 로드에 실패하면
- * 공통 배경으로 대체한다. 카드가 화면 근처에 보일 때만 불러온다.
+ * 기존 이미지(없으면 공통 배경)로 대체한다. 카드가 화면 근처에 보일 때만 불러온다.
  */
 export function CourseRoadviewThumbnail({
   latitude,
   longitude,
+  fallbackImage = null,
   className,
 }: CourseRoadviewThumbnailProps) {
   const appKey = getKakaoMapAppKey();
@@ -122,11 +125,18 @@ export function CourseRoadviewThumbnail({
   return (
     <div
       aria-hidden="true"
-      className={cn('relative overflow-hidden', !viewReady && 'tc-route-visual', className)}
+      className={cn(
+        'relative overflow-hidden',
+        !fallbackImage && !viewReady && 'tc-route-visual',
+        className,
+      )}
       data-testid="course-roadview-thumbnail"
       data-view={viewReady ? (panoId === null ? 'static-map' : 'roadview') : 'fallback'}
       ref={wrapperRef}
     >
+      {fallbackImage && (
+        <img alt="" className="h-full w-full object-cover" loading="lazy" src={fallbackImage} />
+      )}
       {showView && (
         <div
           className={cn(

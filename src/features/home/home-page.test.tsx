@@ -33,5 +33,8 @@ describe('HomePage', () => {
       '#live-recommendations',
     );
     expect(screen.getByTestId('hero-scene-placeholder')).toBeInTheDocument();
+    expect(
+      document.querySelector('img[src="/assets/img/hero-terrain.jpg"]'),
+    ).not.toBeInTheDocument();
   });
 });
