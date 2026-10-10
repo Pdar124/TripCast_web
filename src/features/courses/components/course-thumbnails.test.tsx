@@ -163,18 +163,14 @@ describe('CourseRoadviewThumbnail', () => {
     );
   });
 
-  it('좌표가 없으면 SDK를 불러오지 않고 기존 이미지를 보여 준다', () => {
-    render(<CourseRoadviewThumbnail fallbackImage="/assets/img/seoul-gyeongbokgung.jpg" />);
+  it('좌표가 없으면 SDK를 불러오지 않고 공통 배경을 보여 준다', () => {
+    render(<CourseRoadviewThumbnail />);
 
     expect(loadKakaoMaps).not.toHaveBeenCalled();
-    expect(screen.getByTestId('course-roadview-thumbnail')).toHaveAttribute(
-      'data-view',
-      'fallback',
-    );
-    expect(screen.getByTestId('course-roadview-thumbnail').querySelector('img')).toHaveAttribute(
-      'src',
-      '/assets/img/seoul-gyeongbokgung.jpg',
-    );
+    const thumbnail = screen.getByTestId('course-roadview-thumbnail');
+    expect(thumbnail).toHaveAttribute('data-view', 'fallback');
+    expect(thumbnail).toHaveClass('tc-route-visual');
+    expect(thumbnail.querySelector('img')).not.toBeInTheDocument();
   });
 
   it('잘못된 좌표나 앱 키 누락이면 SDK를 불러오지 않고 공통 배경을 보여 준다', () => {
@@ -282,15 +278,14 @@ describe('CourseRouteThumbnail', () => {
     fake.overlays.forEach((overlay) => expect(overlay.setMap).toHaveBeenCalledWith(null));
   });
 
-  it('출발 좌표가 없으면 SDK를 불러오지 않고 기존 이미지를 보여 준다', () => {
-    render(<CourseRouteThumbnail fallbackImage="/assets/img/jeju-udo.jpg" />);
+  it('출발 좌표가 없으면 SDK를 불러오지 않고 공통 배경을 보여 준다', () => {
+    render(<CourseRouteThumbnail />);
 
     expect(loadKakaoMaps).not.toHaveBeenCalled();
-    expect(screen.getByTestId('course-route-thumbnail')).toHaveAttribute('data-view', 'fallback');
-    expect(screen.getByTestId('course-route-thumbnail').querySelector('img')).toHaveAttribute(
-      'src',
-      '/assets/img/jeju-udo.jpg',
-    );
+    const thumbnail = screen.getByTestId('course-route-thumbnail');
+    expect(thumbnail).toHaveAttribute('data-view', 'fallback');
+    expect(thumbnail).toHaveClass('tc-route-visual');
+    expect(thumbnail.querySelector('img')).not.toBeInTheDocument();
   });
 
   it('앱 키가 없거나 SDK 로드에 실패하면 대체 화면을 보여 준다', async () => {

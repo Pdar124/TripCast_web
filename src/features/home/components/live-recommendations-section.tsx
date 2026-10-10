@@ -9,16 +9,12 @@ import { EmptyState } from '@/shared/components/empty-state';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { getSpotImage } from '@/shared/lib/spot-image';
 
 function HomeRecommendationCard({ course }: { course: CourseRecommendation }) {
-  const image = getSpotImage(course.representativeSpotName);
-
   return (
     <Link className="tc-interactive-card block" to={`/courses/${course.courseId}`}>
       <CourseRoadviewThumbnail
         className="aspect-[16/10]"
-        fallbackImage={image}
         latitude={course.representativeLatitude}
         longitude={course.representativeLongitude}
       />
