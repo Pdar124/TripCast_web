@@ -130,7 +130,9 @@ export function ScrollManager() {
     cancelRestoration.current = undefined;
 
     if (previousKey !== location.key) {
-      positions.current[previousKey] = { x: window.scrollX, y: window.scrollY };
+      // 새 화면이 커밋되면 이전 화면보다 문서가 짧아져 scrollY가 먼저 잘릴 수 있다.
+      // 스크롤 이벤트에서 저장한 마지막 좌표가 있으면 전환 후 좌표로 덮어쓰지 않는다.
+      positions.current[previousKey] ??= { x: window.scrollX, y: window.scrollY };
       writePositions(positions.current);
       activeLocationKey.current = location.key;
     }

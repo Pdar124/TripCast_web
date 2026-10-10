@@ -129,6 +129,20 @@ describe('ScrollManager', () => {
     expect(currentScrollY).toBe(900);
   });
 
+  it('화면 전환 중 문서가 짧아져도 마지막 스크롤 좌표를 덮어쓰지 않는다', async () => {
+    const router = createTestRouter();
+    render(<RouterProvider router={router} />);
+
+    setScrollPosition(900);
+    currentScrollY = 812;
+
+    await act(() => router.navigate('/detail'));
+    await waitFor(() => expect(screen.getByText('상세 페이지')).toBeInTheDocument());
+    await act(() => router.navigate(-1));
+
+    expect(currentScrollY).toBe(900);
+  });
+
   it('비동기 콘텐츠로 문서가 길어지면 잘렸던 POP 위치를 다시 복원한다', async () => {
     const user = userEvent.setup();
     const router = createTestRouter();
