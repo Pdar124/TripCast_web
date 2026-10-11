@@ -321,13 +321,11 @@ function RouteLine({
 }
 
 function Waypoint({
-  index,
   palette,
   progress,
   reducedMotion,
   routePosition,
 }: {
-  index: number;
   palette: HeroPalette;
   progress: React.RefObject<number>;
   reducedMotion: boolean;
@@ -338,32 +336,55 @@ function Waypoint({
   const position = useMemo(() => routeCurve.getPointAt(routePosition), [routePosition]);
   const markerTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
-    canvas.width = 128;
-    canvas.height = 128;
+    canvas.width = 192;
+    canvas.height = 192;
     const context = canvas.getContext('2d');
 
     if (context) {
-      context.shadowColor = 'rgba(0, 0, 0, 0.28)';
-      context.shadowBlur = 12;
+      const pinGradient = context.createLinearGradient(58, 34, 132, 154);
+      pinGradient.addColorStop(0, '#6dff9f');
+      pinGradient.addColorStop(0.42, palette.route);
+      pinGradient.addColorStop(1, '#0ba54a');
+
+      context.shadowColor = 'rgba(2, 12, 7, 0.42)';
+      context.shadowBlur = 18;
+      context.shadowOffsetY = 8;
       context.beginPath();
-      context.arc(64, 64, 42, 0, Math.PI * 2);
-      context.fillStyle = '#ffffff';
+      context.moveTo(96, 166);
+      context.bezierCurveTo(84, 147, 49, 111, 49, 77);
+      context.bezierCurveTo(49, 48, 70, 27, 96, 27);
+      context.bezierCurveTo(122, 27, 143, 48, 143, 77);
+      context.bezierCurveTo(143, 111, 108, 147, 96, 166);
+      context.closePath();
+      context.fillStyle = pinGradient;
       context.fill();
+
       context.shadowBlur = 0;
-      context.lineWidth = 9;
-      context.strokeStyle = palette.route;
+      context.shadowOffsetY = 0;
+      context.lineWidth = 7;
+      context.strokeStyle = 'rgba(255, 255, 255, 0.96)';
       context.stroke();
-      context.fillStyle = '#102117';
-      context.font = '700 46px Arial, sans-serif';
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
-      context.fillText(String(index + 1), 64, 67);
+
+      context.beginPath();
+      context.arc(96, 76, 24, 0, Math.PI * 2);
+      context.fillStyle = '#f7fff9';
+      context.fill();
+
+      context.beginPath();
+      context.arc(96, 76, 10, 0, Math.PI * 2);
+      context.fillStyle = '#123522';
+      context.fill();
+
+      context.beginPath();
+      context.arc(87, 61, 5, 0, Math.PI * 2);
+      context.fillStyle = 'rgba(255, 255, 255, 0.78)';
+      context.fill();
     }
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     return texture;
-  }, [index, palette.route]);
+  }, [palette.route]);
 
   useEffect(() => () => markerTexture.dispose(), [markerTexture]);
 
@@ -386,7 +407,7 @@ function Waypoint({
 
   return (
     <group position={position} ref={groupRef} scale={0.001}>
-      <sprite position-y={0.82} renderOrder={6} scale={[1.08, 1.08, 1]}>
+      <sprite position-y={0.72} renderOrder={6} scale={[1.05, 1.05, 1]}>
         <spriteMaterial
           depthTest={false}
           depthWrite={false}
@@ -396,14 +417,6 @@ function Waypoint({
           transparent
         />
       </sprite>
-      <mesh castShadow position-y={0.34} renderOrder={5}>
-        <sphereGeometry args={[0.13, 18, 14]} />
-        <meshBasicMaterial color={palette.route} depthTest={false} fog={false} toneMapped={false} />
-      </mesh>
-      <mesh castShadow position-y={0.17}>
-        <cylinderGeometry args={[0.03, 0.045, 0.34, 10]} />
-        <meshBasicMaterial color={palette.route} depthTest={false} fog={false} toneMapped={false} />
-      </mesh>
       <mesh position-y={0.025} ref={haloRef} rotation-x={-Math.PI / 2}>
         <ringGeometry args={[0.2, 0.31, 36]} />
         <meshBasicMaterial
@@ -566,9 +579,8 @@ function Scene({
       <Trees compact={compact} palette={palette} />
       <group position-x={compact ? 1.8 : 0}>
         <RouteLine palette={palette} progress={progress} />
-        {[0.08, 0.3, 0.53, 0.76, 0.96].map((routePosition, index) => (
+        {[0.08, 0.3, 0.53, 0.76, 0.96].map((routePosition) => (
           <Waypoint
-            index={index}
             key={routePosition}
             palette={palette}
             progress={progress}
