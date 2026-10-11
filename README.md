@@ -2,6 +2,10 @@
 
 TripCast의 관광지·관광코스 날씨 및 관광기후지수 웹 서비스 프론트엔드입니다.
 
+## 서비스 미리보기
+
+![TripCast 홈 화면에서 여행지 검색과 3D 관광코스가 움직이는 모습](docs/assets/tripcast-hero.gif)
+
 ## 관련 저장소
 
 - 프론트엔드: [TripCast-web](https://github.com/Trip-Cast/TripCast-web)
