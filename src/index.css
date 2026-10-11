@@ -43,15 +43,25 @@
     --tc-hero-foreground: #ffffff;
     --tc-hero-muted: rgba(255, 255, 255, 0.82);
     --tc-hero-scrim:
-      linear-gradient(90deg, rgba(7, 15, 11, 0.82) 0%, rgba(7, 15, 11, 0.52) 46%, transparent 78%),
-      linear-gradient(180deg, rgba(7, 15, 11, 0.2) 0%, transparent 52%, rgba(7, 15, 11, 0.58) 100%);
-    --hero-bg: #e4eaf0;
-    --hero-fog: #dfe6ed;
-    --hero-terrain: #9aa6b4;
-    --hero-wire: #5f6b7a;
-    --hero-ridge: rgba(51, 61, 73, 1);
-    --hero-key: #ffffff;
-    --hero-ambient: #8a94a1;
+      linear-gradient(
+        90deg,
+        rgba(6, 18, 12, 0.88) 0%,
+        rgba(6, 18, 12, 0.68) 38%,
+        rgba(6, 18, 12, 0.16) 68%,
+        transparent 82%
+      ),
+      linear-gradient(180deg, rgba(4, 14, 9, 0.1) 0%, transparent 55%, rgba(4, 14, 9, 0.64) 100%);
+    --hero-bg: #88a9b3;
+    --hero-fog: #a8b9ad;
+    --hero-terrain: #ffffff;
+    --hero-terrain-low: #284b38;
+    --hero-terrain-mid: #58745a;
+    --hero-terrain-high: #abb29a;
+    --hero-trees: #173b29;
+    --hero-wire: #607565;
+    --hero-ridge: rgba(49, 76, 59, 1);
+    --hero-key: #fff2d1;
+    --hero-ambient: #557361;
     --hero-route: #0b9b43;
     --tc-shadow-raised: rgba(18, 18, 18, 0.1) 0 6px 16px;
     --tc-shadow-hover: rgba(18, 18, 18, 0.16) 0 12px 24px;
@@ -97,19 +107,26 @@
     --tc-track: rgba(255, 255, 255, 0.12);
     --tc-hero-foreground: #ffffff;
     --tc-hero-muted: rgba(255, 255, 255, 0.76);
-    --tc-hero-scrim: linear-gradient(
-      180deg,
-      rgba(18, 18, 18, 0.72) 0%,
-      rgba(18, 18, 18, 0.25) 42%,
-      rgba(18, 18, 18, 0.96) 100%
-    );
-    --hero-bg: #0b0b0b;
-    --hero-fog: #121212;
-    --hero-terrain: #1c1c1c;
-    --hero-wire: #3a3a3a;
-    --hero-ridge: rgba(160, 160, 160, 1);
-    --hero-key: #dedede;
-    --hero-ambient: #2a2a2a;
+    --tc-hero-scrim:
+      linear-gradient(
+        90deg,
+        rgba(3, 10, 6, 0.93) 0%,
+        rgba(3, 10, 6, 0.76) 40%,
+        rgba(3, 10, 6, 0.2) 72%,
+        transparent 86%
+      ),
+      linear-gradient(180deg, rgba(3, 8, 5, 0.28) 0%, transparent 48%, rgba(3, 8, 5, 0.82) 100%);
+    --hero-bg: #07130d;
+    --hero-fog: #193326;
+    --hero-terrain: #ffffff;
+    --hero-terrain-low: #0b2417;
+    --hero-terrain-mid: #31543b;
+    --hero-terrain-high: #7d8972;
+    --hero-trees: #081d12;
+    --hero-wire: #42664e;
+    --hero-ridge: rgba(130, 151, 132, 1);
+    --hero-key: #e5efd4;
+    --hero-ambient: #1c3325;
     --hero-route: #1ed760;
     --tc-shadow-raised: rgba(0, 0, 0, 0.3) 0 8px 8px;
     --tc-shadow-hover: rgba(0, 0, 0, 0.5) 0 12px 20px;
@@ -243,6 +260,25 @@
 
   .hero-placeholder-sheen {
     animation: hero-placeholder-sheen 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  .hero-sun-glow {
+    background:
+      radial-gradient(circle at 78% 18%, rgba(255, 237, 187, 0.24), transparent 11%),
+      radial-gradient(circle at 78% 18%, rgba(255, 228, 162, 0.1), transparent 29%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .hero-atmospheric-haze {
+    background:
+      linear-gradient(180deg, transparent 46%, rgba(219, 232, 218, 0.12) 66%, transparent 86%),
+      radial-gradient(ellipse at 62% 68%, rgba(223, 236, 222, 0.16), transparent 38%);
+    pointer-events: none;
+  }
+
+  .dark .hero-atmospheric-haze {
+    opacity: 0.45;
   }
 
   .tc-skeleton {

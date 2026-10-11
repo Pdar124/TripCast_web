@@ -18,6 +18,10 @@ type HeroPalette = {
   key: string;
   route: string;
   terrain: string;
+  terrainHigh: string;
+  terrainLow: string;
+  terrainMid: string;
+  trees: string;
   wire: string;
 };
 
@@ -28,28 +32,37 @@ const fallbackPalette: HeroPalette = {
   key: '#dff7e8',
   route: '#1ed760',
   terrain: '#173d2a',
+  terrainHigh: '#9aaa91',
+  terrainLow: '#102b1e',
+  terrainMid: '#315b3e',
+  trees: '#123924',
   wire: '#4e7a61',
 };
 
-const terrainNoise = createNoise2D(() => 0.42);
+function seededRandom(seed: number) {
+  let value = seed;
+  return () => {
+    value += 0x6d2b79f5;
+    let next = value;
+    next = Math.imul(next ^ (next >>> 15), next | 1);
+    next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
+    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const terrainNoise = createNoise2D(seededRandom(1403));
+const detailNoise = createNoise2D(seededRandom(7281));
 
 function terrainHeight(x: number, z: number) {
-  let amplitude = 1;
-  let frequency = 0.085;
-  let height = 0;
-  let normalization = 0;
+  const rolling = terrainNoise(x * 0.075, z * 0.065) * 0.72;
+  const smallDetail = detailNoise(x * 0.19, z * 0.16) * 0.18;
+  const distance = THREE.MathUtils.smoothstep(-z, 1.5, 17);
+  const ridge = 1 - Math.abs(terrainNoise(x * 0.055 + 3.8, z * 0.052 - 2.1));
+  const mountain = Math.pow(ridge, 2.35) * distance * 6.2 + distance * distance * 1.3;
+  const rightShoulder = Math.exp(-Math.pow((x - 10) * 0.12, 2)) * distance * 1.15;
+  const routeValley = Math.exp(-Math.pow((x - 4.9) * 0.2, 2)) * (0.5 + distance * 0.25);
 
-  for (let octave = 0; octave < 5; octave += 1) {
-    const ridge = 1 - Math.abs(terrainNoise(x * frequency, z * frequency));
-    height += ridge * ridge * amplitude;
-    normalization += amplitude;
-    amplitude *= 0.5;
-    frequency *= 2.05;
-  }
-
-  const broadShape = terrainNoise(x * 0.035, z * 0.035) * 0.85;
-  const routeValley = Math.exp(-Math.pow((x - 3.6) * 0.16, 2)) * 0.8;
-  return (height / normalization - 0.48) * 5.2 + broadShape - routeValley - 0.65;
+  return rolling + smallDetail + mountain + rightShoulder - routeValley - 0.72;
 }
 
 const routeCoordinates = [
@@ -61,11 +74,22 @@ const routeCoordinates = [
   [3.2, -11],
 ] as const;
 
-const routeCurve = new THREE.CatmullRomCurve3(
-  routeCoordinates.map(([x, z]) => new THREE.Vector3(x, terrainHeight(x, z) + 0.9, z)),
+const routeGuideCurve = new THREE.CatmullRomCurve3(
+  routeCoordinates.map(([x, z]) => new THREE.Vector3(x, 0, z)),
   false,
   'catmullrom',
   0.42,
+);
+
+const routeCurve = new THREE.CatmullRomCurve3(
+  Array.from({ length: 72 }, (_, index) => {
+    const point = routeGuideCurve.getPoint(index / 71);
+    point.y = terrainHeight(point.x, point.z) + 0.18;
+    return point;
+  }),
+  false,
+  'catmullrom',
+  0.5,
 );
 
 function readHeroPalette(): HeroPalette {
@@ -82,6 +106,10 @@ function readHeroPalette(): HeroPalette {
     key: value('--hero-key', fallbackPalette.key),
     route: value('--hero-route', fallbackPalette.route),
     terrain: value('--hero-terrain', fallbackPalette.terrain),
+    terrainHigh: value('--hero-terrain-high', fallbackPalette.terrainHigh),
+    terrainLow: value('--hero-terrain-low', fallbackPalette.terrainLow),
+    terrainMid: value('--hero-terrain-mid', fallbackPalette.terrainMid),
+    trees: value('--hero-trees', fallbackPalette.trees),
     wire: value('--hero-wire', fallbackPalette.wire),
   };
 }
@@ -114,25 +142,89 @@ function Terrain({ compact, palette }: { compact: boolean; palette: HeroPalette 
 
     positions.needsUpdate = true;
     plane.computeVertexNormals();
+    const low = new THREE.Color(palette.terrainLow);
+    const mid = new THREE.Color(palette.terrainMid);
+    const high = new THREE.Color(palette.terrainHigh);
+    const color = new THREE.Color();
+    const colors = new Float32Array(positions.count * 3);
+
+    for (let index = 0; index < positions.count; index += 1) {
+      const height = positions.getY(index);
+      const variation = detailNoise(positions.getX(index) * 0.3, positions.getZ(index) * 0.3);
+      const elevation = THREE.MathUtils.clamp((height + 0.8) / 6.8, 0, 1);
+
+      if (elevation < 0.48) {
+        color.copy(low).lerp(mid, elevation / 0.48);
+      } else {
+        color.copy(mid).lerp(high, (elevation - 0.48) / 0.52);
+      }
+
+      color.offsetHSL(variation * 0.012, variation * 0.025, variation * 0.025);
+      colors[index * 3] = color.r;
+      colors[index * 3 + 1] = color.g;
+      colors[index * 3 + 2] = color.b;
+    }
+
+    plane.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     return plane;
-  }, [compact]);
+  }, [compact, palette.terrainHigh, palette.terrainLow, palette.terrainMid]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   return (
-    <group>
-      <mesh geometry={geometry} receiveShadow>
-        <meshStandardMaterial color={palette.terrain} metalness={0.03} roughness={0.92} />
-      </mesh>
-      <mesh geometry={geometry} position-y={0.035}>
-        <meshBasicMaterial
-          color={palette.wire}
-          opacity={compact ? 0.1 : 0.16}
-          transparent
-          wireframe
-        />
-      </mesh>
-    </group>
+    <mesh geometry={geometry} receiveShadow>
+      <meshStandardMaterial color={palette.terrain} metalness={0} roughness={0.96} vertexColors />
+    </mesh>
+  );
+}
+
+function Trees({ compact, palette }: { compact: boolean; palette: HeroPalette }) {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const trees = useMemo(() => {
+    const random = seededRandom(9137);
+    const result: Array<{ position: THREE.Vector3; rotation: number; scale: number }> = [];
+    const count = compact ? 56 : 120;
+
+    for (let attempt = 0; attempt < count * 8 && result.length < count; attempt += 1) {
+      const x = -17 + random() * 34;
+      const z = -15 + random() * 29;
+      const height = terrainHeight(x, z);
+      const slopeX = Math.abs(terrainHeight(x + 0.18, z) - terrainHeight(x - 0.18, z));
+      const routeDistance = Math.abs(x - (5.7 - z * 0.12));
+
+      if (height < -0.35 || height > 3.8 || slopeX > 0.58 || routeDistance < 1.15) continue;
+
+      result.push({
+        position: new THREE.Vector3(x, height, z),
+        rotation: random() * Math.PI,
+        scale: 0.58 + random() * 1.05,
+      });
+    }
+
+    return result;
+  }, [compact]);
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+
+    const dummy = new THREE.Object3D();
+    trees.forEach((tree, index) => {
+      dummy.position.copy(tree.position);
+      dummy.position.y += 0.48 * tree.scale;
+      dummy.rotation.set(0, tree.rotation, 0);
+      dummy.scale.set(tree.scale, tree.scale, tree.scale);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+  }, [trees]);
+
+  return (
+    <instancedMesh castShadow={!compact} count={trees.length} ref={meshRef}>
+      <coneGeometry args={[0.26, 1.05, 7]} />
+      <meshStandardMaterial color={palette.trees} roughness={1} />
+    </instancedMesh>
   );
 }
 
@@ -145,8 +237,8 @@ function RouteLine({
 }) {
   const coreMaterialRef = useRef<THREE.ShaderMaterial>(null);
   const glowMaterialRef = useRef<THREE.ShaderMaterial>(null);
-  const coreGeometry = useMemo(() => new THREE.TubeGeometry(routeCurve, 280, 0.035, 10), []);
-  const glowGeometry = useMemo(() => new THREE.TubeGeometry(routeCurve, 280, 0.11, 10), []);
+  const coreGeometry = useMemo(() => new THREE.TubeGeometry(routeCurve, 280, 0.05, 10), []);
+  const glowGeometry = useMemo(() => new THREE.TubeGeometry(routeCurve, 280, 0.15, 10), []);
   const uniforms = useMemo(
     () => ({
       uColor: { value: new THREE.Color(palette.route) },
@@ -194,7 +286,7 @@ function RouteLine({
             void main() {
               if (vUv.x > uProgress) discard;
               float head = smoothstep(max(0.0, uProgress - 0.08), uProgress, vUv.x);
-              gl_FragColor = vec4(uColor, 0.1 + head * 0.24);
+              gl_FragColor = vec4(uColor, 0.16 + head * 0.34);
             }
           `}
           ref={glowMaterialRef}
@@ -229,11 +321,13 @@ function RouteLine({
 }
 
 function Waypoint({
+  index,
   palette,
   progress,
   reducedMotion,
   routePosition,
 }: {
+  index: number;
   palette: HeroPalette;
   progress: React.RefObject<number>;
   reducedMotion: boolean;
@@ -242,6 +336,36 @@ function Waypoint({
   const groupRef = useRef<THREE.Group>(null);
   const haloRef = useRef<THREE.Mesh>(null);
   const position = useMemo(() => routeCurve.getPointAt(routePosition), [routePosition]);
+  const markerTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext('2d');
+
+    if (context) {
+      context.shadowColor = 'rgba(0, 0, 0, 0.28)';
+      context.shadowBlur = 12;
+      context.beginPath();
+      context.arc(64, 64, 42, 0, Math.PI * 2);
+      context.fillStyle = '#ffffff';
+      context.fill();
+      context.shadowBlur = 0;
+      context.lineWidth = 9;
+      context.strokeStyle = palette.route;
+      context.stroke();
+      context.fillStyle = '#102117';
+      context.font = '700 46px Arial, sans-serif';
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(String(index + 1), 64, 67);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+  }, [index, palette.route]);
+
+  useEffect(() => () => markerTexture.dispose(), [markerTexture]);
 
   useFrame(({ clock }) => {
     const group = groupRef.current;
@@ -262,20 +386,31 @@ function Waypoint({
 
   return (
     <group position={position} ref={groupRef} scale={0.001}>
-      <mesh castShadow position-y={0.34}>
-        <sphereGeometry args={[0.11, 18, 14]} />
-        <meshBasicMaterial color={palette.route} depthTest={false} toneMapped={false} />
+      <sprite position-y={0.82} renderOrder={6} scale={[1.08, 1.08, 1]}>
+        <spriteMaterial
+          depthTest={false}
+          depthWrite={false}
+          fog={false}
+          map={markerTexture}
+          toneMapped={false}
+          transparent
+        />
+      </sprite>
+      <mesh castShadow position-y={0.34} renderOrder={5}>
+        <sphereGeometry args={[0.13, 18, 14]} />
+        <meshBasicMaterial color={palette.route} depthTest={false} fog={false} toneMapped={false} />
       </mesh>
       <mesh castShadow position-y={0.17}>
-        <cylinderGeometry args={[0.025, 0.035, 0.34, 10]} />
-        <meshBasicMaterial color={palette.route} depthTest={false} toneMapped={false} />
+        <cylinderGeometry args={[0.03, 0.045, 0.34, 10]} />
+        <meshBasicMaterial color={palette.route} depthTest={false} fog={false} toneMapped={false} />
       </mesh>
       <mesh position-y={0.025} ref={haloRef} rotation-x={-Math.PI / 2}>
-        <ringGeometry args={[0.17, 0.25, 36]} />
+        <ringGeometry args={[0.2, 0.31, 36]} />
         <meshBasicMaterial
           color={palette.route}
           depthTest={false}
           depthWrite={false}
+          fog={false}
           opacity={0.42}
           side={THREE.DoubleSide}
           toneMapped={false}
@@ -297,16 +432,28 @@ function Scene({
   const announcedReady = useRef(false);
   const pointerTarget = useRef({ x: 0, y: 0 });
   const pointer = useRef({ x: 0, y: 0 });
-  const cameraStart = useMemo(
-    () => new THREE.Vector3(compact ? 13.5 : 15.5, compact ? 10.5 : 9.4, compact ? 21 : 19),
-    [compact],
-  );
   const cameraEnd = useMemo(
-    () => new THREE.Vector3(compact ? 10.8 : 12.2, compact ? 8.4 : 7.2, compact ? 17 : 14.8),
+    () => new THREE.Vector3(compact ? 12 : 15.5, compact ? 11 : 12, compact ? 23 : 24),
     [compact],
   );
   const lookAt = useRef(new THREE.Vector3());
-  const baseLookAt = useMemo(() => new THREE.Vector3(compact ? 3.8 : 3.2, -0.2, -1.8), [compact]);
+  const baseLookAt = useMemo(
+    () => new THREE.Vector3(compact ? 4.5 : 4.8, compact ? -0.2 : 0, compact ? -2 : -2.5),
+    [compact],
+  );
+  const desiredCamera = useRef(new THREE.Vector3());
+  const desiredLookAt = useRef(new THREE.Vector3());
+  const routePoint = useRef(new THREE.Vector3());
+  const routeTangent = useRef(new THREE.Vector3());
+  const routeSide = useRef(new THREE.Vector3());
+  const worldUp = useMemo(() => new THREE.Vector3(0, 1, 0), []);
+
+  useEffect(() => {
+    const camera = cameraRef.current;
+    if (!camera) return;
+    camera.filmOffset = compact ? 0 : -30;
+    camera.updateProjectionMatrix();
+  }, [compact]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -332,7 +479,6 @@ function Scene({
     if (!camera) return;
 
     const elapsed = clock.getElapsedTime();
-    progress.current = reducedMotion ? 1 : Math.min(1, elapsed / 3.2);
 
     if (!announcedReady.current) {
       announcedReady.current = true;
@@ -349,17 +495,48 @@ function Scene({
     pointer.current.x = THREE.MathUtils.lerp(pointer.current.x, pointerTarget.current.x, damping);
     pointer.current.y = THREE.MathUtils.lerp(pointer.current.y, pointerTarget.current.y, damping);
 
-    const intro = THREE.MathUtils.clamp(elapsed / 4.4, 0, 1);
-    const easedIntro = 1 - Math.pow(1 - intro, 4);
-    const idleTime = Math.max(0, elapsed - 4.4);
-    camera.position.lerpVectors(cameraStart, cameraEnd, easedIntro);
-    camera.position.x += pointer.current.x * 0.75 + Math.sin(idleTime * 0.16) * 0.28;
-    camera.position.y -= pointer.current.y * 0.42;
-    camera.position.z += Math.cos(idleTime * 0.13) * 0.22;
+    const rawTravel = THREE.MathUtils.clamp((elapsed - 0.35) / 8.4, 0, 1);
+    const easedTravel = rawTravel * rawTravel * (3 - 2 * rawTravel);
+    const routeOffsetX = compact ? 1.8 : 0;
+    const routeProgress = 0.025 + easedTravel * 0.95;
+    const pullback = THREE.MathUtils.smoothstep(rawTravel, 0.78, 1);
+    progress.current = easedTravel;
 
-    lookAt.current.copy(baseLookAt);
-    lookAt.current.x += pointer.current.x * 0.28;
-    lookAt.current.y -= pointer.current.y * 0.16;
+    const filmOffset = compact ? 0 : THREE.MathUtils.lerp(-30, -18, pullback);
+    if (Math.abs(camera.filmOffset - filmOffset) > 0.01) {
+      camera.filmOffset = filmOffset;
+      camera.updateProjectionMatrix();
+    }
+
+    routeCurve.getPointAt(routeProgress, routePoint.current);
+    routePoint.current.x += routeOffsetX;
+    routeCurve.getTangentAt(routeProgress, routeTangent.current).normalize();
+    routeSide.current.crossVectors(routeTangent.current, worldUp).normalize();
+
+    desiredCamera.current
+      .copy(routePoint.current)
+      .addScaledVector(routeTangent.current, compact ? -4.2 : -5.2)
+      .addScaledVector(routeSide.current, compact ? 4.8 : 6.5);
+    desiredCamera.current.y += compact ? 4.3 : 5.3;
+
+    desiredLookAt.current
+      .copy(routePoint.current)
+      .addScaledVector(routeTangent.current, compact ? 1.5 : 2.4);
+    desiredLookAt.current.y += 0.45;
+
+    desiredCamera.current.lerp(cameraEnd, pullback);
+    desiredLookAt.current.lerp(baseLookAt, pullback);
+
+    const idleTime = Math.max(0, elapsed - 8.75);
+    desiredCamera.current.x +=
+      pointer.current.x * (compact ? 0.28 : 0.58) + Math.sin(idleTime * 0.16) * pullback * 0.24;
+    desiredCamera.current.y -= pointer.current.y * (compact ? 0.18 : 0.34);
+    desiredCamera.current.z += Math.cos(idleTime * 0.13) * pullback * 0.18;
+    desiredLookAt.current.x += pointer.current.x * 0.2;
+    desiredLookAt.current.y -= pointer.current.y * 0.12;
+
+    camera.position.lerp(desiredCamera.current, damping);
+    lookAt.current.lerp(desiredLookAt.current, damping);
     camera.lookAt(lookAt.current);
   });
 
@@ -379,17 +556,19 @@ function Scene({
       <directionalLight
         castShadow={!compact}
         color={palette.key}
-        intensity={2.25}
-        position={[-9, 15, 8]}
+        intensity={2.65}
+        position={[-8, 14, 10]}
         shadow-mapSize-height={1024}
         shadow-mapSize-width={1024}
       />
       <pointLight color={palette.route} distance={15} intensity={18} position={[5, 4, 1]} />
       <Terrain compact={compact} palette={palette} />
+      <Trees compact={compact} palette={palette} />
       <group position-x={compact ? 1.8 : 0}>
         <RouteLine palette={palette} progress={progress} />
-        {[0.08, 0.3, 0.53, 0.76, 0.96].map((routePosition) => (
+        {[0.08, 0.3, 0.53, 0.76, 0.96].map((routePosition, index) => (
           <Waypoint
+            index={index}
             key={routePosition}
             palette={palette}
             progress={progress}
