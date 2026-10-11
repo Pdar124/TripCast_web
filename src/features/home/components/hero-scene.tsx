@@ -495,7 +495,7 @@ function Scene({
     pointer.current.x = THREE.MathUtils.lerp(pointer.current.x, pointerTarget.current.x, damping);
     pointer.current.y = THREE.MathUtils.lerp(pointer.current.y, pointerTarget.current.y, damping);
 
-    const rawTravel = THREE.MathUtils.clamp((elapsed - 0.35) / 8.4, 0, 1);
+    const rawTravel = THREE.MathUtils.clamp((elapsed - 0.35) / 11.2, 0, 1);
     const easedTravel = rawTravel * rawTravel * (3 - 2 * rawTravel);
     const routeOffsetX = compact ? 1.8 : 0;
     const routeProgress = 0.025 + easedTravel * 0.95;
@@ -527,7 +527,7 @@ function Scene({
     desiredCamera.current.lerp(cameraEnd, pullback);
     desiredLookAt.current.lerp(baseLookAt, pullback);
 
-    const idleTime = Math.max(0, elapsed - 8.75);
+    const idleTime = Math.max(0, elapsed - 11.55);
     desiredCamera.current.x +=
       pointer.current.x * (compact ? 0.28 : 0.58) + Math.sin(idleTime * 0.16) * pullback * 0.24;
     desiredCamera.current.y -= pointer.current.y * (compact ? 0.18 : 0.34);
