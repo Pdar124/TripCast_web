@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, Compass, Search } from 'lucide-react';
+import { ArrowDown, ArrowRight, CloudSun, Compass, Search } from 'lucide-react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { type FormEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -35,27 +35,31 @@ export function HeroSection() {
     >
       <HeroBackground />
       <div className="absolute inset-0 z-[1] bg-[var(--tc-hero-scrim)]" aria-hidden="true" />
-      <div className="container relative z-10 flex h-full max-w-[780px] flex-col justify-center text-[var(--tc-hero-foreground)]">
+      <div className="container relative z-10 flex h-full max-w-[820px] flex-col justify-center text-[var(--tc-hero-foreground)]">
         <motion.div style={reducedMotion ? undefined : { opacity: copyOpacity, y: copyY }}>
-          <p className="tc-eyebrow text-[var(--tc-hero-muted)]">관광코스 날씨 통합 서비스</p>
-          <h1 className="mt-4 break-keep text-[48px] font-bold leading-[1.02] tracking-[-1.5px] [text-shadow:0_2px_24px_rgba(0,0,0,0.45)] sm:text-[64px]">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/15 px-3 py-2 text-xs font-bold tracking-[-0.01em] text-white/90 shadow-sm backdrop-blur-md">
+            <CloudSun className="h-4 w-4 text-[#6df096]" aria-hidden="true" />
+            관광지 날씨부터 코스 추천까지
+          </p>
+          <h1 className="mt-5 break-keep text-[46px] font-bold leading-[1.04] tracking-[-1.7px] [text-shadow:0_2px_24px_rgba(0,0,0,0.45)] sm:text-[66px]">
             여행 가기 좋은 날씨,
             <br />
-            <span className="whitespace-nowrap">이제 코스까지 한 번에.</span>
+            <span className="break-keep sm:whitespace-nowrap">가장 좋은 길로 이어집니다.</span>
           </h1>
-          <p className="mt-5 max-w-[38em] break-keep text-lg leading-8 text-[var(--tc-hero-muted)] sm:text-xl">
-            관광지 날씨와 관광기후지수, 오늘 가기 좋은 여행 코스를 하나의 흐름으로 만나보세요.
+          <p className="mt-5 max-w-[36em] break-keep text-[17px] leading-7 text-[var(--tc-hero-muted)] sm:text-xl sm:leading-8">
+            관광지 날씨와 관광기후지수를 살펴보고, 오늘의 하늘과 내 여행에 꼭 맞는 코스를
+            만나보세요.
           </p>
         </motion.div>
 
         <motion.div
-          className="mt-8 max-w-2xl"
+          className="mt-8 max-w-[680px]"
           style={
             reducedMotion ? undefined : { opacity: searchOpacity, scale: searchScale, y: searchY }
           }
         >
           <form
-            className="flex flex-col gap-3 rounded-2xl border border-white/20 bg-white/95 p-3 text-foreground shadow-2xl backdrop-blur-xl sm:flex-row"
+            className="flex flex-col gap-3 rounded-[22px] border border-white/35 bg-white/[0.96] p-2.5 text-foreground shadow-[0_24px_80px_rgba(3,20,10,0.32)] backdrop-blur-2xl sm:flex-row"
             onSubmit={submit}
             role="search"
           >
@@ -66,14 +70,17 @@ export function HeroSection() {
                 aria-hidden="true"
               />
               <input
-                className="h-12 w-full rounded-xl bg-secondary py-2 pl-12 pr-4 text-sm font-semibold placeholder:text-muted-foreground"
+                className="h-[52px] w-full rounded-2xl bg-transparent py-2 pl-12 pr-4 text-[15px] font-semibold placeholder:font-medium placeholder:text-muted-foreground"
                 onChange={(event) => setKeyword(event.target.value)}
                 placeholder="어디로 떠나고 싶나요?"
                 type="search"
                 value={keyword}
               />
             </label>
-            <Button className="h-12 px-7" type="submit">
+            <Button
+              className="h-[52px] rounded-2xl px-7 shadow-[0_8px_24px_rgba(29,185,84,0.28)]"
+              type="submit"
+            >
               여행지 찾기 <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </form>

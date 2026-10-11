@@ -69,6 +69,8 @@ export function HeroBackground() {
           </HeroErrorBoundary>
         </div>
       )}
+      <div className="hero-sun-glow absolute inset-0" />
+      <div className="hero-atmospheric-haze absolute inset-0" />
     </div>
   );
 }
