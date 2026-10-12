@@ -15,6 +15,7 @@ function climateColor(grade: string) {
   if (normalizedGrade === '보통') return 'var(--tc-climate-normal)';
   if (normalizedGrade === '나쁨') return 'var(--tc-climate-caution)';
   if (normalizedGrade === '매우나쁨') return 'var(--tc-climate-bad)';
+  if (normalizedGrade === '특보발령주의') return 'var(--tc-climate-bad)';
   return 'var(--tc-climate-normal)';
 }
 
@@ -43,6 +44,8 @@ export function ClimateBadge({ climateIndex, size = 'default' }: ClimateBadgePro
     '나쁨',
     '매우나쁨',
     '매우 나쁨',
+    '특보발령주의',
+    '특보발령 주의',
   ]);
   const rawGrade = climateIndex.grade?.trim() ?? '';
   const grade = knownGrades.has(rawGrade) ? rawGrade : '정보 없음';

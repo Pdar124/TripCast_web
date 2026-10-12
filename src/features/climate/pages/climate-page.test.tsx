@@ -78,6 +78,9 @@ describe('ClimatePage', () => {
     });
     expect(getSpy).toHaveBeenCalledWith('/api/regions');
     expect(await screen.findByText('지수 0.11')).toBeInTheDocument();
+    expect(
+      screen.getByText(/관광기후지수는 열쾌적성, 바람, 강수, 일사량을 종합해/),
+    ).toBeInTheDocument();
     expect(screen.getByText('기간 추이')).toBeInTheDocument();
     expect(await screen.findByRole('combobox', { name: '지역' })).toHaveValue(
       '제주특별자치도 서귀포시',
