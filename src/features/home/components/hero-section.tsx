@@ -47,8 +47,7 @@ export function HeroSection() {
             <span className="break-keep sm:whitespace-nowrap">가장 좋은 길로 이어집니다.</span>
           </h1>
           <p className="mt-5 max-w-[36em] break-keep text-[17px] leading-7 text-[var(--tc-hero-muted)] sm:text-xl sm:leading-8">
-            관광지 날씨와 관광기후지수를 살펴보고, 오늘의 하늘과 내 여행에 꼭 맞는 코스를
-            만나보세요.
+            관광지 날씨와 관광기후지수를 살펴보고, 내 여행에 꼭 맞는 코스를 만나보세요.
           </p>
         </motion.div>
 
