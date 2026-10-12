@@ -24,4 +24,14 @@ describe('ClimateBadge', () => {
     expect(screen.getByText('지수 0.11')).toBeInTheDocument();
     expect(screen.getByText('좋음')).toBeInTheDocument();
   });
+
+  it('특보발령 주의를 위험 색상으로 표시한다', () => {
+    render(<ClimateBadge climateIndex={{ grade: '특보발령 주의', score: -0.21 }} />);
+
+    expect(screen.getByText('지수 -0.21')).toBeInTheDocument();
+    expect(screen.getByText('특보발령 주의')).toBeInTheDocument();
+    expect(screen.getByText('특보발령 주의').parentElement).toHaveStyle({
+      '--climate-color': 'var(--tc-climate-bad)',
+    });
+  });
 });
