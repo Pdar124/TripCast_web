@@ -181,8 +181,8 @@ export function ClimatePage() {
         <p className="tc-eyebrow">CLIMATE INDEX</p>
         <h1 className="tc-page-title mt-3">관광기후지수</h1>
         <p className="tc-page-desc">
-          관광기후지수는 열쾌적성, 바람, 강수, 일사량을 종합해 야외 관광 적합도를 나타낸
-          기상청 지수입니다. 표시된 등급은 기상청 제공 결과를 기준으로 합니다.
+          관광기후지수는 열쾌적성, 바람, 강수, 일사량을 종합해 야외 관광 적합도를 나타낸 기상청
+          지수입니다. 표시된 등급은 기상청 제공 결과를 기준으로 합니다.
         </p>
       </header>
 
